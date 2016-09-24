@@ -70,8 +70,9 @@ private:
 };
 
 template<typename T>
-TypedColumn<T>::~TypedColumn(){
-  
+TypedColumn<T>::~TypedColumn(){ 
+  delete mBitPacker;
+  delete mValues;
 }
 
 /*
