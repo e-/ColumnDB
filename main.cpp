@@ -16,7 +16,7 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-/*  ColumnTable columnTable("Test Database");
+  ColumnTable columnTable("Test Database");
   
   columnTable.addColumn(new TypedColumn<int>("o_orderkey"));
   columnTable.addColumn(new TypedColumn<string>("o_orderstatus"));
@@ -26,16 +26,6 @@ int main(int argc, char *argv[]) {
   columnTable.loadCSV(argv[1]);
 
   cout << columnTable.getRowCount() << " rows are loaded." << endl;
-*/
-/*  vector<Column *> list;
-  list.push_back(new TypedColumn<int>("int"));
-  list.push_back(new TypedColumn<string>("string"));
-  cout << list[0]->getName() << endl;
-  cout << list[1]->getName() << endl;
-  cout << orderKeySet.size() << endl;
-  cout << rowCount << " rows have been processed." << endl;
-*/
- 
 
   return 0;
 }

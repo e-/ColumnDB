@@ -54,18 +54,26 @@ void ColumnTable::loadCSV(const char * path) {
     ((TypedColumn<decltype(comment)> *)mColumnList[3])->addValue(comment);
   }
  
-  for(auto c : mColumnList) {
-    c -> endAddingValues();
-  }
-/*  cout << ((TypedColumn<int> *) mColumnList[0])->getCardinality() << endl;
-  cout << ((TypedColumn<int> *) mColumnList[1])->getCardinality() << endl;
-  cout << ((TypedColumn<string> *) mColumnList[2])->getCardinality() << endl;
-  cout << ((TypedColumn<string> *) mColumnList[3])->getCardinality() << endl;
- */
-  cout << ((TypedColumn<int> *)mColumnList[2]) -> findIndex(94111) << endl;
-
-
   mRowCount = rowCount;
+
+  for(auto c : mColumnList) {
+    c -> endAddingValues(rowCount);
+  }
+
+  io::CSVReader<4, io::trim_chars<' '>, io::double_quote_escape<',', '\"'>> in2(path);
+  in.set_header("OrderKey", "OrderStatus", "TotalPrice", "Comment");
+
+  while(in2.read_row(orderKey, orderStatus, totalPrice, comment)){ 
+    ((TypedColumn<int> *)mColumnList[0])->insertValue(orderKey);
+    ((TypedColumn<string> *)mColumnList[1])->insertValue(orderStatus);
+    ((TypedColumn<int> *)mColumnList[2])->insertValue(totalPrice);
+    ((TypedColumn<string> *)mColumnList[3])->insertValue(comment);
+  }
+ 
+
+  for(auto &column : mColumnList) {
+    column -> printInfo();
+  }
 }
 
 #endif

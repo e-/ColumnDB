@@ -19,8 +19,8 @@ public:
     }
     mLength = (int)ceil((mWidth * mSize) / BLOCK);
 
-    mBlocks = new uint[mSize];
-    memset(mBlocks, 0, mSize);
+    mBlocks = new uint[mLength];
+    memset(mBlocks, 0, mLength);
   };
 
   virtual ~BitPacker() {
@@ -128,6 +128,10 @@ public:
       return value;
     }
     return 0;
+  }
+
+  uint getMemorySize() {
+    return sizeof(uint) * mLength;
   }
 
 private:
