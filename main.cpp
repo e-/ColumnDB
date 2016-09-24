@@ -1,8 +1,6 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include <vector>
-#include <set>
 
 #include "ColumnTable.h"
 #include "Column.h"
@@ -26,6 +24,23 @@ int main(int argc, char *argv[]) {
   columnTable.loadCSV(argv[1]);
 
   cout << columnTable.getRowCount() << " rows are loaded." << endl;
+
+  cout << endl << "Enter the query (e.g., 5678 < o_totalprice < 56789)" << endl;
+  cout << "Available columns: o_orderkey, o_totalprice" << endl;
+  cout << "Enter \"exit\" to exit." << endl << endl;
+
+  string query;
+  cout << "Query> ";
+  while(getline(cin, query))
+  {
+    if(query == "exit") 
+      break;
+    else 
+    {
+      columnTable.processQuery(query);
+    }
+    cout << "Query> ";
+  }
 
   return 0;
 }

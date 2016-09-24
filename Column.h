@@ -47,8 +47,11 @@ public:
     delete mValues;
   }
   void insertValue(const T &value) {
-    mBitPacker->store(mIndex++, findIndex(value));
+    mBitPacker -> store(mIndex++, findIndex(value));
   }  
+  uint loadValue(uint index) {
+    return mBitPacker -> load(index);
+  }
   int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
 
   void printInfo() {
@@ -58,6 +61,8 @@ public:
     cout << "Occupied size in memory: " << fixed << setprecision(3) << (float)mBitPacker -> getMemorySize() / 1024 / 1024 << "MBs" << endl; 
     cout << endl;
   }
+  
+
 
 private:
   set<T> *mValues;
@@ -75,9 +80,4 @@ TypedColumn<T>::~TypedColumn(){
   delete mValues;
 }
 
-/*
-template<typename T>
-void TypedColumn<T>::addValue(const T& value) {
-  mValues.insert(value);
-}*/
 #endif
