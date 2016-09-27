@@ -58,12 +58,11 @@ public:
     cout << "Name: " << mName << endl;
     cout << "Cardinality: " << mDict.size() << endl;
     cout << "# of bits per value: " << mRecordWidth << endl;
-    cout << "Occupied size in memory: " << fixed << setprecision(3) << (float)mBitPacker -> getMemorySize() / 1024 / 1024 << "MBs" << endl; 
+    cout << "Memory for bitpacking: " << fixed << setprecision(3) << (float)mBitPacker -> getMemorySize() / 1024 / 1024 << "MBs" << endl; 
+    cout << "Memory for dictionary: " << fixed << setprecision(3) << (float)sizeof(T) * mDict.capacity()  / 1024 / 1024 << "MBs" << endl;
     cout << endl;
   }
   
-
-
 private:
   set<T> *mValues;
   vector<T> mDict;

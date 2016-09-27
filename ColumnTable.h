@@ -8,6 +8,7 @@
 #include "lib/csv.h"
 
 #include "Column.h"
+#include "Timer.h"
 
 using namespace std;
 
@@ -86,6 +87,8 @@ private:
 
 
 void ColumnTable::loadCSV(const char * path) {
+  Timer timer;
+  timer.start();
   io::CSVReader<4, io::trim_chars<' '>, io::double_quote_escape<',', '\"'>> in(path);
   in.set_header("OrderKey", "OrderStatus", "TotalPrice", "Comment");
 
@@ -107,6 +110,10 @@ void ColumnTable::loadCSV(const char * path) {
   for(auto c : mColumnList) {
     c -> endAddingValues(rowCount);
   }
+  
+  cout << timer.end() << "s elapsed for building the dictionary" << endl;
+
+  timer.start();
 
   io::CSVReader<4, io::trim_chars<' '>, io::double_quote_escape<',', '\"'>> in2(path);
   in.set_header("OrderKey", "OrderStatus", "TotalPrice", "Comment");
@@ -117,6 +124,8 @@ void ColumnTable::loadCSV(const char * path) {
     ((TypedColumn<int> *)mColumnList[2])->insertValue(totalPrice);
     ((TypedColumn<string> *)mColumnList[3])->insertValue(comment);
   }
+  
+  cout << timer.end() << "s elapsed for bitpacking" << endl;
  
 
   for(auto &column : mColumnList) {
