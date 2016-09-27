@@ -1,0 +1,6 @@
+To compile, enter `make`.
+Make sure that you have installed the recent version of `g++`.
+
+To run, enter `./main <data_to_path>`.
+e.g., ./main data/data.csv
+
