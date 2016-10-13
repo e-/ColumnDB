@@ -3,11 +3,20 @@
 #include <string>
 
 #include "ColumnTable.h"
-#include "Column.h"
 #include "BitPacker.h"
 #include "Timer.h"
+#include "TypedColumn.h"
+#include "UnpackedColumn.h"
 
 using namespace std;
+
+int intParser(const string &s) {
+  return stoi(s);
+}
+
+string stringParser(const string &s) {
+  return string(s);
+}
 
 int main(int argc, char *argv[]) {
   if(argc == 1) { 
@@ -17,10 +26,10 @@ int main(int argc, char *argv[]) {
 
   ColumnTable columnTable("Test Database");
   
-  columnTable.addColumn(new TypedColumn<int>("o_orderkey"));
-  columnTable.addColumn(new TypedColumn<string>("o_orderstatus"));
-  columnTable.addColumn(new TypedColumn<int>("o_totalprice"));
-  columnTable.addColumn(new TypedColumn<string>("o_comment"));
+  columnTable.addColumn(new TypedColumn<int>("o_orderkey", intParser));
+  columnTable.addColumn(new TypedColumn<string>("o_orderstatus", stringParser));
+  columnTable.addColumn(new TypedColumn<int>("o_totalprice", intParser));
+  columnTable.addColumn(new TypedColumn<string>("o_comment", stringParser));
 
   Timer timer;
 
@@ -35,6 +44,15 @@ int main(int argc, char *argv[]) {
 
   string query;
   cout << "Query> ";
+
+  // for testing
+  //
+  columnTable.processQuery("o_totalprice > 5000");
+  columnTable.processQuery("o_orderkey < 10000");
+
+  return 0;
+  // end testing
+
   while(getline(cin, query))
   {
     if(query == "exit") 
