@@ -5,7 +5,7 @@
 #include "ColumnTable.h"
 #include "BitPacker.h"
 #include "Timer.h"
-#include "TypedColumn.h"
+#include "PackedColumn.h"
 #include "UnpackedColumn.h"
 
 using namespace std;
@@ -26,10 +26,10 @@ int main(int argc, char *argv[]) {
 
   ColumnTable columnTable("Test Database");
   
-  columnTable.addColumn(new TypedColumn<int>("o_orderkey", intParser));
-  columnTable.addColumn(new TypedColumn<string>("o_orderstatus", stringParser));
-  columnTable.addColumn(new TypedColumn<int>("o_totalprice", intParser));
-  columnTable.addColumn(new TypedColumn<string>("o_comment", stringParser));
+  columnTable.addColumn(new PackedColumn<int>("o_orderkey", intParser));
+  columnTable.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
+  columnTable.addColumn(new PackedColumn<int>("o_totalprice", intParser));
+  columnTable.addColumn(new PackedColumn<string>("o_comment", stringParser));
 
   Timer timer;
 

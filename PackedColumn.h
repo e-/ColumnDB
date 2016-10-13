@@ -13,15 +13,15 @@
 using namespace std;
 
 template<typename T>
-class TypedColumn : public Column
+class PackedColumn : public Column
 {
 public:
-  TypedColumn (const string& name, function<T(string)> parser) : Column(name), mParser(parser) {
+  PackedColumn (const string& name, function<T(string)> parser) : Column(name), mParser(parser) {
     mValues = new set<T>();
     mIndex = 0;
   }
 
-  ~TypedColumn() {
+  ~PackedColumn() {
     delete mBitPacker;
     delete mValues;
   }

@@ -7,7 +7,7 @@
 #include "lib/csv_parser.hpp"
 
 #include "Column.h"
-#include "TypedColumn.h"
+#include "PackedColumn.h"
 #include "UnpackedColumn.h"
 #include "Timer.h"
 
@@ -63,12 +63,12 @@ public:
   void select(const string& name, const string& op, const int& limit) {
     vector<uint> *temp = new vector<uint>;
     Column *column = getColumnByName(name);
-    TypedColumn<int> *typedColumn = (TypedColumn<int> *)column;
+    PackedColumn<int> *packedColumn = (PackedColumn<int> *)column;
 
-    int encoded = typedColumn -> findIndex(limit);
+    int encoded = packedColumn -> findIndex(limit);
    
     for(uint index : *mSelected) {
-      uint value = typedColumn -> loadValue(index);
+      uint value = packedColumn -> loadValue(index);
       if(op == "<" && value < encoded || op == ">" && value > encoded) {
         temp -> push_back(index);
       }
