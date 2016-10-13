@@ -1,2 +1,4 @@
 *.csv
 a.out
+*.gch
+*.o
