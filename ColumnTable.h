@@ -63,13 +63,12 @@ public:
   void select(const string& name, const string& op, const int& limit) {
     vector<uint> *temp = new vector<uint>;
     Column *column = getColumnByName(name);
-    PackedColumn<int> *packedColumn = (PackedColumn<int> *)column;
 
-    int encoded = packedColumn -> findIndex(limit);
+//    int encoded = packedColumn -> findIndex(limit);
    
     for(uint index : *mSelected) {
-      uint value = packedColumn -> loadValue(index);
-      if(op == "<" && value < encoded || op == ">" && value > encoded) {
+//      uint value = packedColumn -> loadValue(index);
+      if(op == "<" && column -> isValueAtIndexLessThan(index, limit) || op == ">" && column -> isValueAtIndexGreaterThan(index, limit)) {
         temp -> push_back(index);
       }
     }
@@ -84,7 +83,7 @@ public:
     delete mSelected;
     return count;
   }
-
+  
 private:
   string mName;
   int mRowCount;

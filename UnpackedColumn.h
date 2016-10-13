@@ -12,56 +12,54 @@ template<typename T>
 class UnpackedColumn : public Column
 {
 public:
-  UnpackedColumn (const string& name) : Column(name) {
-    mValues = new set<T>();
-    mIndex = 0;
-  };
+  UnpackedColumn (const string& name, function<T(string)> parser) : Column(name), mParser(parser) {
+  }
 
   ~UnpackedColumn() {
-    delete mBitPacker;
-    delete mValues;
   }
 
-  void addValue(const T &value) { mValues->insert(value); };
+  void addValue(const T &value) {
+  };
 
-  int getCardinality() { return mValues->size(); };
+  int getCardinality() { 
+    return 0;
+  };
 
   void endAddingValues(int recordCount) {
-    mDict = vector<T>(mValues->begin(), mValues->end());
-    mRecordWidth = ceil(log2(mDict.size()));
-    mRecordCount = recordCount;
-    mBitPacker = new BitPacker(mRecordWidth, mRecordCount);
-
-    delete mValues;
   }
 
-  void insertValue(const T &value) {
-    mBitPacker -> store(mIndex++, findIndex(value));
+  void insertValue(const string &value) {
+    T converted = mParser(value);
+    mList.push_back(converted);
   }  
 
   uint loadValue(uint index) {
-    return mBitPacker -> load(index);
+    return mList[index];
   }
 
-  int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
+  int findIndex(const T &value) { 
+    throw;
+  }
 
+  bool isValueAtIndexLessThan(const uint index, const int value) {
+    return mList[index] < value;
+  }
+
+  bool isValueAtIndexGreaterThan(const uint index, const int value) {
+    return mList[index] > value;
+  }
+    
   void printInfo() {
     cout << "Name: " << mName << endl;
-    cout << "Cardinality: " << mDict.size() << endl;
-    cout << "# of bits per value: " << mRecordWidth << endl;
-    cout << "Memory for bitpacking: " << fixed << setprecision(3) << (float)mBitPacker -> getMemorySize() / 1024 / 1024 << "MBs" << endl; 
-    cout << "Memory for dictionary: " << fixed << setprecision(3) << (float)sizeof(T) * mDict.capacity()  / 1024 / 1024 << "MBs" << endl;
+    cout << "Memory for unpacked list: " << fixed << setprecision(3) << (float)sizeof(T) * mList.capacity()  / 1024 / 1024 << "MBs" << endl;
     cout << endl;
   }
+
+  bool isPacked() {return false;}
   
 private:
-  set<T> *mValues;
-  vector<T> mDict;
-  BitPacker *mBitPacker;
-
-  int mRecordWidth; // in bits
-  int mRecordCount;
-  int mIndex;
+  function<T(const string&)> mParser;
+  vector<T> mList;
 };
 
 #endif 

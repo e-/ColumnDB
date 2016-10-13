@@ -26,7 +26,7 @@ int main(int argc, char *argv[]) {
 
   ColumnTable columnTable("Test Database");
   
-  columnTable.addColumn(new PackedColumn<int>("o_orderkey", intParser));
+  columnTable.addColumn(new UnpackedColumn<int>("o_orderkey", intParser));
   columnTable.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
   columnTable.addColumn(new PackedColumn<int>("o_totalprice", intParser));
   columnTable.addColumn(new PackedColumn<string>("o_comment", stringParser));
@@ -49,6 +49,7 @@ int main(int argc, char *argv[]) {
   //
   columnTable.processQuery("o_totalprice > 5000");
   columnTable.processQuery("o_orderkey < 10000");
+  columnTable.processQuery("5678 < o_totalprice < 56789");
 
   return 0;
   // end testing

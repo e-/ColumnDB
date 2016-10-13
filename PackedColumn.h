@@ -55,6 +55,18 @@ public:
 
   int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
 
+  bool isValueAtIndexLessThan(const uint index, const T & value) {
+    uint lower, upper;
+    findValue(value, lower, upper);
+    return (mBitPacker -> load(index)) < upper;
+  }
+
+  bool isValueAtIndexGreaterThan(const uint index, const T & value) {
+    uint lower, upper;
+    findValue(value, lower, upper);
+    return (mBitPacker -> load(index)) > lower;
+  }
+
   void printInfo() {
     cout << "Name: " << mName << endl;
     cout << "Cardinality: " << mDict.size() << endl;
@@ -63,6 +75,8 @@ public:
     cout << "Memory for dictionary: " << fixed << setprecision(3) << (float)sizeof(T) * mDict.capacity()  / 1024 / 1024 << "MBs" << endl;
     cout << endl;
   }
+  
+  bool isPacked() {return true;}
   
 private:
   set<T> *mValues;
@@ -73,6 +87,19 @@ private:
   int mRecordWidth; // in bits
   int mRecordCount;
   int mIndex;
+  T mRecentComparedValue;
+  uint mRecentLowerBound, mRecentUpperBound;
+
+  void findValue(T value, uint &lower, uint &upper) {
+    if(mRecentComparedValue != value) {
+      mRecentComparedValue = value;
+      mRecentLowerBound = lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin();
+      mRecentUpperBound = upper_bound(mDict.begin(), mDict.end(), value) - mDict.begin();
+    }
+
+    lower = mRecentLowerBound;
+    upper = mRecentUpperBound;
+  }
 };
 
 #endif 
