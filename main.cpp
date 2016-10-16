@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "PackedColumn.h"
 #include "UnpackedColumn.h"
+#include "Operator.h"
 
 using namespace std;
 
@@ -20,52 +21,53 @@ string stringParser(const string &s) {
 
 int main(int argc, char *argv[]) {
   if(argc == 1) { 
-    cout << "Please specify the data file" << endl;
+    cout << "Please specify the two data file" << endl;
     return 1;
   }
 
-  ColumnTable columnTable("Test Database");
+  ColumnTable columnTable1("Test Database");
   
-  columnTable.addColumn(new UnpackedColumn<int>("o_orderkey", intParser));
-  columnTable.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
-  columnTable.addColumn(new PackedColumn<int>("o_totalprice", intParser));
-  columnTable.addColumn(new PackedColumn<string>("o_comment", stringParser));
+  columnTable1.addColumn(new UnpackedColumn<int>("o_orderkey", intParser));
+  columnTable1.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
+  columnTable1.addColumn(new PackedColumn<int>("o_totalprice", intParser));
+  columnTable1.addColumn(new PackedColumn<string>("o_comment", stringParser));
 
   Timer timer;
 
   timer.start();
-  columnTable.loadCSV(argv[1]);
-  cout << columnTable.getRowCount() << " rows are loaded." << endl;
+  columnTable1.loadCSV(argv[1]);
+
+  cout << columnTable1.getRowCount() << " rows are loaded for " <<  columnTable1.getName()<< endl;
   cout << timer.end() << "s elapsed for loading" << endl;
+  cout << endl << endl;
+
+  ColumnTable columnTable2("Test Database2");
+  
+  columnTable2.addColumn(new UnpackedColumn<int>("l_orderkey", intParser));
+  columnTable2.addColumn(new PackedColumn<int>("l_quantity", intParser));
+  columnTable2.addColumn(new PackedColumn<string>("l_returnflag", stringParser));
+
+  timer.start();
+  columnTable2.loadCSV(argv[2], '|');
+
+  cout << columnTable2.getRowCount() << " rows are loaded for " << columnTable2.getName() << endl;
+  cout << timer.end() << "s elapsed for loading" << endl;
+
 
   cout << endl << "Enter the query (e.g., 5678 < o_totalprice < 56789)" << endl;
   cout << "Available columns: o_orderkey, o_totalprice" << endl;
   cout << "Enter \"exit\" to exit." << endl << endl;
 
-  string query;
-  cout << "Query> ";
-
   // for testing
-  //
-  columnTable.processQuery("o_totalprice > 5000");
-  columnTable.processQuery("o_orderkey < 10000");
-  columnTable.processQuery("5678 < o_totalprice < 56789");
+  columnTable1.processQuery("o_totalprice > 5000");
+  cout << Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 5000) -> getRowCount() << " rows are found" << endl;
+
+  columnTable1.processQuery("o_orderkey < 10000");
+  cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::LT, 10000) -> getRowCount() << " rows are found" << endl;
+
+  columnTable1.processQuery("5678 < o_totalprice < 56789");
+  cout << Op::where(Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 56789), "o_totalprice", Op::GT, 5678) -> getRowCount() << " rows are found" << endl;
 
   return 0;
   // end testing
-
-  while(getline(cin, query))
-  {
-    if(query == "exit") 
-      break;
-    else 
-    {
-      timer.start();
-      columnTable.processQuery(query);
-      cout << timer.end() << "s elapsed for querying" << endl;
-    }
-    cout << "Query> ";
-  }
-
-  return 0;
 }
