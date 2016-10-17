@@ -60,15 +60,15 @@ int main(int argc, char *argv[]) {
   cout << "Enter \"exit\" to exit." << endl << endl;
 
   // for testing
-  columnTable1.processQuery("o_totalprice > 5000");
+  //columnTable1.processQuery("o_totalprice > 5000");
   auto res1 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 5000);
   cout <<  res1 -> getRowCount() << " rows are found" << endl;
   res1 -> show();
 
-  columnTable1.processQuery("o_orderkey < 10000");
+  //columnTable1.processQuery("o_orderkey < 10000");
   cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::LT, 10000) -> getRowCount() << " rows are found" << endl;
 
-  columnTable1.processQuery("5678 < o_totalprice < 56789");
+  //columnTable1.processQuery("5678 < o_totalprice < 56789");
   cout << Op::where(Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 56789), "o_totalprice", Op::GT, 5678) -> getRowCount() << " rows are found" << endl;
 
   return 0;

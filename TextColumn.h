@@ -1,5 +1,5 @@
-#ifndef TYPEDCOLUMN_H
-#define TYPEDCOLUMN_H
+#ifndef TEXTCOLUMN_H
+#define TEXTCOLUMN_H
 
 #include <set>
 #include <cmath>

@@ -5,28 +5,26 @@
 #include <cmath>
 #include <string>
 #include <iomanip>
-#include "BitPacker.h"
-#include "Column.h"
+#include <vector>
+#include <functional>
 
-template<typename T>
-class UnpackedColumn : public Column
+#include "BitPacker.h"
+#include "TypedColumn.h"
+
+using namespace std;
+
+template<class T>
+class UnpackedColumn : public TypedColumn<T>
 {
 public:
-  UnpackedColumn (const string& name, function<T(string)> parser) : Column(name), mParser(parser) {
+  UnpackedColumn (const string& name, function<T(string)> parser) : TypedColumn<T>(name), mParser(parser) {
   }
 
-  ~UnpackedColumn() {
-  }
+  void addValue(const T &value) {};
 
-  void addValue(const T &value) {
-  };
+  int getCardinality() { return 0; };
 
-  int getCardinality() { 
-    return 0;
-  };
-
-  void endAddingValues(int recordCount) {
-  }
+  void endAddingValues(int recordCount) {  }
 
   void insertValue(const string &value) {
     T converted = mParser(value);
@@ -54,11 +52,11 @@ public:
   }
 
   void printInfo() {
-    cout << "Name: " << mName << endl;
+    cout << "Name: " << this -> getName() << endl;
     cout << "Memory for unpacked list: " << fixed << setprecision(3) << (float)sizeof(T) * mList.capacity()  / 1024 / 1024 << "MBs" << endl;
     cout << endl;
   }
-
+  
   bool isPacked() {return false;}
   
 private:

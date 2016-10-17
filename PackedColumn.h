@@ -1,22 +1,23 @@
-#ifndef TYPEDCOLUMN_H
-#define TYPEDCOLUMN_H
+#ifndef PACKEDCOLUMN_H
+#define PACKEDCOLUMN_H
 
 #include <set>
 #include <cmath>
 #include <string>
 #include <iomanip>
-#include "BitPacker.h"
-#include "Column.h"
 #include <algorithm>
 #include <functional>
 
+#include "BitPacker.h"
+#include "TypedColumn.h"
+
 using namespace std;
 
-template<typename T>
-class PackedColumn : public Column
+template<class T>
+class PackedColumn : public TypedColumn<T>
 {
 public:
-  PackedColumn (const string& name, function<T(string)> parser) : Column(name), mParser(parser) {
+  PackedColumn (const string& name, function<T(string)> parser) : TypedColumn<T>(name), mParser(parser) {
     mValues = new set<T>();
     mIndex = 0;
   }
@@ -71,14 +72,14 @@ public:
   }
 
   void printInfo() {
-    cout << "Name: " << mName << endl;
+    cout << "Name: " << this -> getName() << endl;
     cout << "Cardinality: " << mDict.size() << endl;
     cout << "# of bits per value: " << mRecordWidth << endl;
     cout << "Memory for bitpacking: " << fixed << setprecision(3) << (float)mBitPacker -> getMemorySize() / 1024 / 1024 << "MBs" << endl; 
     cout << "Memory for dictionary: " << fixed << setprecision(3) << (float)sizeof(T) * mDict.capacity()  / 1024 / 1024 << "MBs" << endl;
     cout << endl;
   }
-  
+   
   bool isPacked() {return true;}
   
 
