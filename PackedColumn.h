@@ -30,8 +30,7 @@ public:
     T converted = mParser(value);
     mValues -> insert(converted);
   }
-//  void addValue(const T &value) { mValues->insert(value); };
-
+  
   int getCardinality() { return mValues->size(); };
 
   void endAddingValues(int recordCount) {
@@ -54,7 +53,7 @@ public:
   }
 
   int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
-
+  
   bool isValueAtIndexLessThan(const uint index, const T & value) {
     uint lower, upper;
     findValue(value, lower, upper);
@@ -65,6 +64,10 @@ public:
     uint lower, upper;
     findValue(value, lower, upper);
     return (mBitPacker -> load(index)) > lower;
+  }
+
+  const T &getValue(const uint index) {
+    return mDict[mBitPacker -> load(index)];
   }
 
   void printInfo() {
@@ -78,6 +81,7 @@ public:
   
   bool isPacked() {return true;}
   
+
 private:
   set<T> *mValues;
   vector<T> mDict;

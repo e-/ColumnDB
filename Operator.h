@@ -40,7 +40,7 @@ namespace Op {
     return res;
   }
 
-  shared_ptr<InterResult> join() {
+  shared_ptr<InterResult> join(shared_ptr<InterResult> src1, shared_ptr<InterResult> src2, const string &name1, const string &name2) {
     return nullptr;
   }
 

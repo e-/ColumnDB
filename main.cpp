@@ -8,6 +8,7 @@
 #include "PackedColumn.h"
 #include "UnpackedColumn.h"
 #include "Operator.h"
+#include "InterResult.h"
 
 using namespace std;
 
@@ -30,7 +31,7 @@ int main(int argc, char *argv[]) {
   columnTable1.addColumn(new UnpackedColumn<int>("o_orderkey", intParser));
   columnTable1.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
   columnTable1.addColumn(new PackedColumn<int>("o_totalprice", intParser));
-  columnTable1.addColumn(new PackedColumn<string>("o_comment", stringParser));
+  columnTable1.addColumn(new UnpackedColumn<string>("o_comment", stringParser));
 
   Timer timer;
 
@@ -60,7 +61,9 @@ int main(int argc, char *argv[]) {
 
   // for testing
   columnTable1.processQuery("o_totalprice > 5000");
-  cout << Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 5000) -> getRowCount() << " rows are found" << endl;
+  auto res1 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 5000);
+  cout <<  res1 -> getRowCount() << " rows are found" << endl;
+  res1 -> show();
 
   columnTable1.processQuery("o_orderkey < 10000");
   cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::LT, 10000) -> getRowCount() << " rows are found" << endl;

@@ -1,6 +1,7 @@
 #ifndef INTERRESULT_H
 #define INTERRESULT_H
 
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -17,10 +18,9 @@ public:
     mTables.push_back(table);
     mColumns.push_back(table -> mColumns);
    
-    vector<int> indices(table -> mRowCount);
+    vector<uint> indices(table -> mRowCount);
     mRowIndices.push_back(indices);
-    int i;
-    for(int i = 0; i < table -> mRowCount; ++i)
+    for(uint i = 0; i < table -> mRowCount; ++i)
       mRowIndices[0][i] = i;
   }
   
@@ -60,9 +60,11 @@ public:
     }
   }
 
+  void show(int n = 10);
+
   vector<ColumnTable *> mTables;
   vector<vector<Column *>> mColumns;
-  vector<vector<int>> mRowIndices;
+  vector<vector<uint>> mRowIndices;
 };
 
 #endif

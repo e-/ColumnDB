@@ -48,7 +48,11 @@ public:
   bool isValueAtIndexGreaterThan(const uint index, const int value) {
     return mList[index] > value;
   }
-    
+
+  const T &getValue(const uint index) {
+    return mList[index];
+  }
+
   void printInfo() {
     cout << "Name: " << mName << endl;
     cout << "Memory for unpacked list: " << fixed << setprecision(3) << (float)sizeof(T) * mList.capacity()  / 1024 / 1024 << "MBs" << endl;
