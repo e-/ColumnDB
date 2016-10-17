@@ -16,30 +16,25 @@ void InterResult::show(int n) {
   for(int i = 0; i < n; ++i) {
     for(int j = 0; j < mTables.size(); ++j) {
       for(auto &column : mColumns[j]) {
-/*        if(Column::IsPackedString(column)) {
-          cout << ((PackedColumn<string> *)column) -> getValue(mRowIndices[j][i]) << ',';
+        if(Column::IsString(column)) {
+          cout << ((TypedColumn<string> *)column) -> getValue(mRowIndices[j][i]) << ',';
         }
-        else if(Column::IsUnpackedString(column)) {
-          cout << ((UnpackedColumn<string> *)column) -> getValue(mRowIndices[j][i]) << ',';
+        else if(Column::IsInt(column)){
+          cout << ((TypedColumn<int> *)column) -> getValue(mRowIndices[j][i]) << ',';
         }
-        else if(Column::IsPackedInt(column)){
-          cout << ((PackedColumn<int> *)column) -> getValue(mRowIndices[j][i]) << ',';
-        }
-        else 
-        {
-          cout << ((UnpackedColumn<int> *)column) -> getValue(mRowIndices[j][i]) << ',';
-        }*/
       }
     }
     cout << endl;
   }
 }
 
-void InterResult::joinSchema(shared_ptr<InterResult> src) {
+void InterResult::concat(shared_ptr<InterResult> src) {
   int index = 0;
   for(auto &columnTable : src -> mTables) {
     mTables.push_back(columnTable);
-    mColumns.push_back(src -> mColumns[index++]);
-    mRowIndices.push_back(vector<uint>(0));
+    mColumns.push_back(src -> mColumns[index]);
+    mRowIndices.push_back(src -> mRowIndices[index]);
+    index++;
   }
 }
+

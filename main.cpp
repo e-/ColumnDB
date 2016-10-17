@@ -64,13 +64,23 @@ int main(int argc, char *argv[]) {
   auto res1 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 5000);
   cout <<  res1 -> getRowCount() << " rows are found" << endl;
   res1 -> show();
+  auto res2 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 5000);
+  cout <<  res2 -> getRowCount() << " rows are found" << endl;
+
 
   //columnTable1.processQuery("o_orderkey < 10000");
-  cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::LT, 10000) -> getRowCount() << " rows are found" << endl;
+  cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::LT, 5000) -> getRowCount() << " rows are found" << endl;
+  cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::GT, 5000) -> getRowCount() << " rows are found" << endl;
 
   //columnTable1.processQuery("5678 < o_totalprice < 56789");
   cout << Op::where(Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 56789), "o_totalprice", Op::GT, 5678) -> getRowCount() << " rows are found" << endl;
 
+
+  auto res3 = Op::join(columnTable1.convertToInterResult(), columnTable2.convertToInterResult(), "o_orderkey", "l_orderkey");
+
+  cout << res3 -> getRowCount() << " rows are found" << endl;
+  
+  res3 -> show();
+
   return 0;
-  // end testing
 }

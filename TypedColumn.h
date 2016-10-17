@@ -20,24 +20,9 @@ public:
 
   virtual bool isValueAtIndexLessThan(const uint index, const T & value) {};
   
-  /*
-  {
-    if(this -> isPacked()) {
-      return (static_cast<PackedColumn<T> *>(this)) -> isValueAtIndexLessThan(index, value);
-    } else {
-      return (static_cast<UnpackedColumn<T> *>(this)) -> isValueAtIndexLessThan(index, value);
-    }
-  }*/
-
   virtual bool isValueAtIndexGreaterThan(const uint index, const T & value) {};
-  
-  /*{
-    if(this -> isPacked()) {
-      return (static_cast<PackedColumn<T> *>(this)) -> isValueAtIndexGreaterThan(index, value);
-    } else {
-      return (static_cast<UnpackedColumn<T> *>(this)) -> isValueAtIndexGreaterThan(index, value);
-    }
-  }*/
+
+  virtual const T &getValue(const uint index) {};
 
   virtual void printInfo() {};
   virtual bool isPacked() {};

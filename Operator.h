@@ -19,20 +19,20 @@ namespace Op {
     int index = -1;
     for(auto targetIndex : src -> mRowIndices[iri]) {
       index ++;
-/*      switch(comp) {
+      switch(comp) {
         case LT:
-          if(column -> isValueAtIndexLessThan(targetIndex, value)) {
+          if(((TypedColumn<int> *)column) -> isValueAtIndexLessThan(targetIndex, value)) {
             break;
           }
           continue;
 
         case GT:
-          if(column -> isValueAtIndexGreaterThan(targetIndex, value)) {
+          if(((TypedColumn<int> *)column) -> isValueAtIndexGreaterThan(targetIndex, value)) {
             break;
           }
           continue;
       }
-  */    
+
       for(int i = 0; i < src -> mTables.size(); ++i) {
         res -> mRowIndices[i].push_back(src -> mRowIndices[i][index]);
       }
@@ -42,11 +42,16 @@ namespace Op {
   }
 
   shared_ptr<InterResult> join(shared_ptr<InterResult> src1, shared_ptr<InterResult> src2, const string &name1, const string &name2) {
-    return nullptr;
-/*    if(src1.getRowCount() > src2.getRowCount()) {
+    string cname1 = name1;
+    string cname2 = name2;
+    if(src1 -> getRowCount() < src2 -> getRowCount()) {
       auto temp = src1;
       src1 = src2;
       src2 = temp;
+
+      auto temp2 = cname1;
+      cname1 = cname2;
+      cname2 = temp2;
     }
 
     shared_ptr<InterResult> res1(new InterResult(src1));
@@ -54,49 +59,43 @@ namespace Op {
     res1 -> clearAllRowIndices();
     res2 -> clearAllRowIndices();
     
-    Column *column1 = res -> getColumnByName(name1);
-    int index1 = src1 -> findIndexByColumnName(name1);
-    Column *column2 = res -> getColumnByName(name2);
-    int index2 = src2 -> findIndexByColumnName(name2);
+    TypedColumn<int> *column1 = (TypedColumn<int> *)src1 -> getColumnByName(cname1);
+    int partialIndex1 = src1 -> findIndexByColumnName(cname1);
+    TypedColumn<int> *column2 = (TypedColumn<int> *)src2 -> getColumnByName(cname2);
+    int partialIndex2 = src2 -> findIndexByColumnName(cname2);
 
     map<int, vector<int>> m;
-    int sz1 = src1.getRowCount();
+    int sz1 = src1 -> getRowCount();
     for(int i = 0; i < sz1; ++i) {
-      column1 -> 
-    }
-  
-//    res -> joinSchema(src2);
-
-    return res;
-*/
-/*    
-    res -> clearAllRowIndices();
-
-    int index = -1;
-    for(auto targetIndex : src -> mRowIndices[iri]) {
-      index ++;
-      switch(comp) {
-        case LT:
-          if(column -> isValueAtIndexLessThan(targetIndex, value)) {
-            break;
-          }
-          continue;
-
-        case GT:
-          if(column -> isValueAtIndexGreaterThan(targetIndex, value)) {
-            break;
-          }
-          continue;
-      }
+      uint index = src1 -> mRowIndices[partialIndex1][i];
+      int value = column1 -> getValue(index);
       
-      for(int i = 0; i < src -> mTables.size(); ++i) {
-        res -> mRowIndices[i].push_back(src -> mRowIndices[i][index]);
+      m[value].push_back(i);
+    }
+
+    
+    int sz2 = src2 -> getRowCount();
+    for(int i = 0; i < sz2; ++i) {
+      uint index2 = src2 -> mRowIndices[partialIndex2][i];
+      int value2 = column2 -> getValue(index2);
+
+      if(m.find(value2) != m.end()) {
+        for(auto &index1 : m[value2]) {
+          // src1 index1, src2 index2 -> join
+          
+          for(int j = 0; j < res1 -> mTables.size(); ++j)
+            res1 -> mRowIndices[j].push_back(src1 -> mRowIndices[j][index1]);
+
+          for(int j = 0; j < res2 -> mTables.size(); ++j)
+            res2 -> mRowIndices[j].push_back(src2 -> mRowIndices[j][index2]);
+        }
       }
     }
 
-    return res;
 
-    return nullptr;*/
+    res1 -> concat(res2);
+
+    return res1;
   }
 
   shared_ptr<InterResult> contains() {

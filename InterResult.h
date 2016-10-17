@@ -60,7 +60,7 @@ public:
     }
   }
 
-  void joinSchema(shared_ptr<InterResult> src);
+  void concat(shared_ptr<InterResult> src);
 
   void show(int n = 10);
 

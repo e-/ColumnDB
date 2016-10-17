@@ -39,11 +39,11 @@ public:
     throw;
   }
 
-  bool isValueAtIndexLessThan(const uint index, const int value) {
+  bool isValueAtIndexLessThan(const uint index, const T &value) {
     return mList[index] < value;
   }
 
-  bool isValueAtIndexGreaterThan(const uint index, const int value) {
+  bool isValueAtIndexGreaterThan(const uint index, const T &value) {
     return mList[index] > value;
   }
 
