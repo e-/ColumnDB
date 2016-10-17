@@ -31,14 +31,6 @@ public:
     mList.push_back(converted);
   }  
 
-  uint loadValue(uint index) {
-    return mList[index];
-  }
-
-  int findIndex(const T &value) { 
-    throw;
-  }
-
   bool isValueAtIndexLessThan(const uint index, const T &value) {
     return mList[index] < value;
   }

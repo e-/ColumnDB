@@ -7,6 +7,7 @@
 #include "Timer.h"
 #include "PackedColumn.h"
 #include "UnpackedColumn.h"
+#include "TextColumn.h"
 #include "Operator.h"
 #include "InterResult.h"
 
@@ -31,7 +32,7 @@ int main(int argc, char *argv[]) {
   columnTable1.addColumn(new UnpackedColumn<int>("o_orderkey", intParser));
   columnTable1.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
   columnTable1.addColumn(new PackedColumn<int>("o_totalprice", intParser));
-  columnTable1.addColumn(new UnpackedColumn<string>("o_comment", stringParser));
+  columnTable1.addColumn(new TextColumn("o_comment"));
 
   Timer timer;
 
@@ -76,11 +77,30 @@ int main(int argc, char *argv[]) {
   cout << Op::where(Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 56789), "o_totalprice", Op::GT, 5678) -> getRowCount() << " rows are found" << endl;
 
 
-  auto res3 = Op::join(columnTable1.convertToInterResult(), columnTable2.convertToInterResult(), "o_orderkey", "l_orderkey");
+  auto res3 = Op::join(
+      columnTable1.convertToInterResult(), 
+      columnTable2.convertToInterResult(), 
+      "o_orderkey", 
+      "l_orderkey");
 
   cout << res3 -> getRowCount() << " rows are found" << endl;
   
   res3 -> show();
+
+  auto res4 = Op::join(
+      Op::contains(
+        columnTable1.convertToInterResult(),
+        "o_comment",
+        "gift"
+      ), 
+      columnTable2.convertToInterResult(), 
+      "o_orderkey", 
+      "l_orderkey"
+  );
+
+  cout << res4 -> getRowCount() << " rows are found" << endl;
+  
+  res4 -> show();
 
   return 0;
 }

@@ -5,63 +5,76 @@
 #include <cmath>
 #include <string>
 #include <iomanip>
-#include "BitPacker.h"
-#include "Column.h"
+#include <map>
+#include <vector>
+#include <functional>
+#include <sstream>
+#include <cctype>
 
-template<typename T>
-class TypedColumn : public Column
+#include "BitPacker.h"
+#include "TypedColumn.h"
+
+using namespace std;
+
+class TextColumn : public TypedColumn<string>
 {
 public:
-  TypedColumn (const string& name) : Column(name) {
-    mValues = new set<T>();
-    mIndex = 0;
-  };
+  TextColumn (const string& name) : TypedColumn<string>(name) {}
 
-  ~TypedColumn() {
-    delete mBitPacker;
-    delete mValues;
-  }
+  void addValue(const string &value) {};
 
-  void addValue(const T &value) { mValues->insert(value); };
+  int getCardinality() { return 0; };
 
-  int getCardinality() { return mValues->size(); };
+  void endAddingValues(int recordCount) {  }
 
-  void endAddingValues(int recordCount) {
-    mDict = vector<T>(mValues->begin(), mValues->end());
-    mRecordWidth = ceil(log2(mDict.size()));
-    mRecordCount = recordCount;
-    mBitPacker = new BitPacker(mRecordWidth, mRecordCount);
-
-    delete mValues;
-  }
-
-  void insertValue(const T &value) {
-    mBitPacker -> store(mIndex++, findIndex(value));
+  void insertValue(const string &value) {
+    int index = mList.size();
+    mList.push_back(value);
+		string temp = value;
+    for(auto &c : temp) {
+      if(ispunct(c)) c = ' ';
+    }	
+    for(auto &token : split(temp)) {
+      if(token.length() > 0) {
+        mInvertedIndex[token].push_back(index);
+      }
+    }
   }  
 
-  uint loadValue(uint index) {
-    return mBitPacker -> load(index);
+  bool isValueAtIndexLessThan(const uint index, const string &value) {
+    return mList[index] < value;
   }
 
-  int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
+  bool isValueAtIndexGreaterThan(const uint index, const string &value) {
+    return mList[index] > value;
+  }
+
+  const string &getValue(const uint index) {
+    return mList[index];
+  }
 
   void printInfo() {
-    cout << "Name: " << mName << endl;
-    cout << "Cardinality: " << mDict.size() << endl;
-    cout << "# of bits per value: " << mRecordWidth << endl;
-    cout << "Memory for bitpacking: " << fixed << setprecision(3) << (float)mBitPacker -> getMemorySize() / 1024 / 1024 << "MBs" << endl; 
-    cout << "Memory for dictionary: " << fixed << setprecision(3) << (float)sizeof(T) * mDict.capacity()  / 1024 / 1024 << "MBs" << endl;
+    cout << "Name: " << this -> getName() << endl;
+    cout << "Memory for unpacked list: " << fixed << setprecision(3) << (float)sizeof(string) * mList.capacity()  / 1024 / 1024 << "MBs" << endl;
     cout << endl;
   }
   
-private:
-  set<T> *mValues;
-  vector<T> mDict;
-  BitPacker *mBitPacker;
+  bool isPacked() {return false;}
+  
+  map<string, vector<int>> mInvertedIndex;
 
-  int mRecordWidth; // in bits
-  int mRecordCount;
-  int mIndex;
+private:
+  vector<string> mList;
+  
+	vector<string> split(const string &s, char delim = ' ') {
+		stringstream ss(s);
+		string item;
+		vector<string> tokens;
+		while (getline(ss, item, delim)) {
+			tokens.push_back(item);
+		}
+		return tokens;
+	}
 };
 
 #endif 

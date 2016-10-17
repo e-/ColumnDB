@@ -5,6 +5,7 @@
 #include <map>
 
 #include "InterResult.h"
+#include "TextColumn.h"
 
 namespace Op {
   enum Comp { EQ, LT, GT };
@@ -98,9 +99,23 @@ namespace Op {
     return res1;
   }
 
-  shared_ptr<InterResult> contains() {
-    return nullptr;
+  // InterResult contains a single table
+  shared_ptr<InterResult> contains(shared_ptr<InterResult> src, const string &name, const string &value) {
+    shared_ptr<InterResult> res(new InterResult(src));
+
+    TextColumn *column = (TextColumn *)res -> getColumnByName(name);
+    int iri = res -> findIndexByColumnName(name);
+    
+    res -> clearAllRowIndices();
+
+    for(auto &index : column -> mInvertedIndex[value]) {
+      res -> mRowIndices[0].push_back(index);
+    }
+
+    return res;
   }
+
+
 }
 
 #endif 

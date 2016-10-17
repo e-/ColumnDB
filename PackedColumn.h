@@ -49,10 +49,6 @@ public:
     mBitPacker -> store(mIndex++, findIndex(converted));
   }  
 
-  uint loadValue(uint index) {
-    return mBitPacker -> load(index);
-  }
-
   int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
   
   bool isValueAtIndexLessThan(const uint index, const T & value) {
