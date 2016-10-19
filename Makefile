@@ -1,4 +1,4 @@
-CC=clang++
+CC=g++
 
 all: csv_parser.o ColumnTable.o
 	$(CC) main.cpp -o main -std=c++11 csv_parser.o ColumnTable.o InterResult.o Column.o -O2
@@ -11,6 +11,6 @@ csv_parser.o: lib/csv_parser.cpp
 	$(CC) -c lib/csv_parser.cpp -O2 -std=c++11
 
 clean:
-	rm *.o
-	rm *.gch
-	rm main
+	rm -f *.o
+	rm -f *.gch
+	rm -f main

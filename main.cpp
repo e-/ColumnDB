@@ -56,51 +56,79 @@ int main(int argc, char *argv[]) {
   cout << timer.end() << "s elapsed for loading" << endl;
 
 
-  cout << endl << "Enter the query (e.g., 5678 < o_totalprice < 56789)" << endl;
-  cout << "Available columns: o_orderkey, o_totalprice" << endl;
-  cout << "Enter \"exit\" to exit." << endl << endl;
+  timer.start();
+  cout << "o_totalprice > 56789" << endl;
+  auto res1 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 56789);
+  cout <<  res1 -> getRowCount() << " rows are found." << endl;
+  cout << timer.end() << "s elpased." << endl << endl;
 
-  // for testing
-  //columnTable1.processQuery("o_totalprice > 5000");
-  auto res1 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 5000);
-  cout <<  res1 -> getRowCount() << " rows are found" << endl;
-  res1 -> show();
-  auto res2 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 5000);
-  cout <<  res2 -> getRowCount() << " rows are found" << endl;
+  timer.start();
+  cout << "5678 < o_totalprice < 56789" << endl; 
+  auto res2 = Op::where(
+      Op::where(
+        columnTable1.convertToInterResult(), 
+        "o_totalprice", 
+        Op::LT, 
+        56789
+      ), 
+      "o_totalprice", 
+      Op::GT, 
+      5678);
+  
+  cout << res2 -> getRowCount() << " rows are found." << endl;
+  cout << timer.end() << "s elapsed." << endl << endl;
 
 
-  //columnTable1.processQuery("o_orderkey < 10000");
-  cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::LT, 5000) -> getRowCount() << " rows are found" << endl;
-  cout << Op::where(columnTable1.convertToInterResult(), "o_orderkey", Op::GT, 5000) -> getRowCount() << " rows are found" << endl;
-
-  //columnTable1.processQuery("5678 < o_totalprice < 56789");
-  cout << Op::where(Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::LT, 56789), "o_totalprice", Op::GT, 5678) -> getRowCount() << " rows are found" << endl;
-
-
+  timer.start();
+  cout << "orders join lineitem" << endl;
   auto res3 = Op::join(
       columnTable1.convertToInterResult(), 
       columnTable2.convertToInterResult(), 
       "o_orderkey", 
       "l_orderkey");
 
-  cout << res3 -> getRowCount() << " rows are found" << endl;
-  
+  cout << res3 -> getRowCount() << " rows are found." << endl;
   res3 -> show();
+  cout << timer.end() << "s elapsed." << endl << endl;
 
-  auto res4 = Op::join(
+  timer.start();
+  cout << "orders join lineitem where o_totalprice < 56789 and l_quantity > 40" << endl;
+  auto res4 = Op::where(
+      Op::where(
+        Op::join(
+          columnTable1.convertToInterResult(), 
+          columnTable2.convertToInterResult(), 
+        "o_orderkey", 
+        "l_orderkey"),
+        "o_totalprice",
+        Op::LT,
+        56789
+      ),
+      "l_quantity",
+      Op::GT,
+      40
+    );
+  cout << res4 -> getRowCount() << " rows are found." << endl;
+  res4 -> show();
+  cout << timer.end() << "s elapsed." << endl << endl;
+
+
+  timer.start();
+  cout << "orders join linitem where o_comment contains 'gift'" << endl;
+  auto res5 = Op::join(
       Op::contains(
         columnTable1.convertToInterResult(),
         "o_comment",
-        "gift"
+        "gift",
+        true
       ), 
       columnTable2.convertToInterResult(), 
       "o_orderkey", 
       "l_orderkey"
   );
-
-  cout << res4 -> getRowCount() << " rows are found" << endl;
-  
-  res4 -> show();
+  cout << res5 -> getRowCount() << " rows are found." << endl;
+  res5 -> show();
+  cout << timer.end() << "s elapsed." << endl << endl;
 
   return 0;
 }

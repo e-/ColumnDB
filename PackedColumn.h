@@ -52,14 +52,12 @@ public:
   int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
   
   bool isValueAtIndexLessThan(const uint index, const T & value) {
-    uint lower, upper;
-    findValue(value, lower, upper);
-    return (mBitPacker -> load(index)) < upper;
+    uint lower = findValue(value);
+    return (mBitPacker -> load(index)) < lower;
   }
 
   bool isValueAtIndexGreaterThan(const uint index, const T & value) {
-    uint lower, upper;
-    findValue(value, lower, upper);
+    uint lower = findValue(value);
     return (mBitPacker -> load(index)) > lower;
   }
 
@@ -91,15 +89,13 @@ private:
   T mRecentComparedValue;
   uint mRecentLowerBound, mRecentUpperBound;
 
-  void findValue(T value, uint &lower, uint &upper) {
+  uint findValue(T value) {
     if(mRecentComparedValue != value) {
       mRecentComparedValue = value;
       mRecentLowerBound = lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin();
-      mRecentUpperBound = upper_bound(mDict.begin(), mDict.end(), value) - mDict.begin();
     }
 
-    lower = mRecentLowerBound;
-    upper = mRecentUpperBound;
+    return mRecentLowerBound;
   }
 };
 

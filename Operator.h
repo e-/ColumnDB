@@ -65,6 +65,8 @@ namespace Op {
     TypedColumn<int> *column2 = (TypedColumn<int> *)src2 -> getColumnByName(cname2);
     int partialIndex2 = src2 -> findIndexByColumnName(cname2);
 
+    // src1 is bigger than src2
+    
     map<int, vector<int>> m;
     int sz1 = src1 -> getRowCount();
     for(int i = 0; i < sz1; ++i) {
@@ -100,7 +102,7 @@ namespace Op {
   }
 
   // InterResult contains a single table
-  shared_ptr<InterResult> contains(shared_ptr<InterResult> src, const string &name, const string &value) {
+  shared_ptr<InterResult> contains(shared_ptr<InterResult> src, const string &name, const string &value, const bool plural) {
     shared_ptr<InterResult> res(new InterResult(src));
 
     TextColumn *column = (TextColumn *)res -> getColumnByName(name);
@@ -110,6 +112,12 @@ namespace Op {
 
     for(auto &index : column -> mInvertedIndex[value]) {
       res -> mRowIndices[0].push_back(index);
+    }
+
+    if(plural) {
+      for(auto &index : column -> mInvertedIndex[value + "s"]) {
+        res -> mRowIndices[0].push_back(index);
+      }
     }
 
     return res;
