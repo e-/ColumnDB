@@ -58,7 +58,11 @@ int main(int argc, char *argv[]) {
 
   timer.start();
   cout << "o_totalprice > 56789" << endl;
-  auto res1 = Op::where(columnTable1.convertToInterResult(), "o_totalprice", Op::GT, 56789);
+  auto res1 = Op::where(
+      columnTable1.convertToInterResult(), 
+      "o_totalprice", 
+      Op::GT, 
+    56789);
   cout <<  res1 -> getRowCount() << " rows are found." << endl;
   cout << timer.end() << "s elpased." << endl << endl;
 
