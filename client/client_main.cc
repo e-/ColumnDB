@@ -9,7 +9,7 @@
 int main(int argc, char* argv[]) {
     try {
         // Create the Socket
-        ClientSocket c_socket("localhost", 30000);
+        ClientSocket c_socket("localhost", 30001);
         std::string line;
         std::string reply;
 

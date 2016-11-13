@@ -68,3 +68,34 @@ void ColumnTable::loadCSV(const char * path, const char field_terminator) {
     column -> printInfo();
   }
 }
+
+bool ColumnTable::insert(const vector<string> &fields) {
+  unsigned int csn = ++mCsn;
+  Version version(csn, fields);
+  int ptr = mVersions.size();
+
+  mVersions.push_back(version);
+  
+  RowState rowState(true, ptr);
+
+  mHash.insert({fields[0], rowState});
+  
+  return true;
+}
+
+bool ColumnTable::update(const string &key, const vector<string> &fields) {
+  unsigned int csn = ++mCsn;
+  auto kv = mHash.find(key);
+
+  if(kv == mHash.end()) {
+    return false; // no corresponding data
+  }
+
+  RowState &rowState = kv -> second;
+
+  // mark the row as dirty
+  rowState.mIsDirty = true;
+
+
+  return true;
+}
