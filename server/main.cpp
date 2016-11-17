@@ -1,6 +1,10 @@
 #include <iostream>
+#include <functional>
 #include <fstream>
 #include <string>
+#include <chrono>
+#include <mutex>
+#include <thread>
 
 #include "ServerSocket.h"
 #include "SocketException.h"
@@ -20,8 +24,16 @@ int intParser(const string &s) {
   return stoi(s);
 }
 
+string intToString(int a) {
+  return to_string(a);
+}
+
 string stringParser(const string &s) {
   return string(s);
+}
+
+string stringToString(string s) {
+  return s;
 }
 
 void split(const string &s, char delim, vector<string> &elems) {
@@ -39,18 +51,29 @@ vector<string> split(const string &s, char delim) {
   return elems;
 }
 
+void collect(ColumnTable &columnTable) {
+  while(1) {
+    this_thread::sleep_for(chrono::milliseconds(2000));
+    columnTable.lock.lock();
+    columnTable.collect();
+    columnTable.lock.unlock();
+  }
+}
+
 int main(int argc, char* argv[]) {
   ColumnTable columnTable("Test Database");
   
-  columnTable.addColumn(new UnpackedColumn<int>("o_orderkey", intParser));
-  columnTable.addColumn(new PackedColumn<string>("o_orderstatus", stringParser));
-  columnTable.addColumn(new PackedColumn<int>("o_totalprice", intParser));
-  columnTable.addColumn(new TextColumn("o_comment"));
+  columnTable.addColumn(new UnpackedColumn<int>("o_orderkey", intParser, intToString));
+  columnTable.addColumn(new PackedColumn<string>("o_orderstatus", stringParser, stringToString));
+  columnTable.addColumn(new PackedColumn<int>("o_totalprice", intParser, intToString));
+  columnTable.addColumn(new UnpackedColumn<string>("o_comment", stringParser, stringToString));
 
 
   try {
     // Create the Socket
     ServerSocket server(30001);
+    
+    thread collector(collect, ref(columnTable));
 
     while(true) {
       ServerSocket new_sock;
@@ -70,6 +93,7 @@ int main(int argc, char* argv[]) {
           string command = request[0];
           vector<string> args(request.begin() + 1, request.end());
 
+          columnTable.lock.lock();
           if(command == "INSERT") {
             bool result = columnTable.insert(args);
             new_sock << "insert";
@@ -82,9 +106,13 @@ int main(int argc, char* argv[]) {
           else if(command == "SCAN") {
 
           }
+          columnTable.lock.unlock();
         }
       } catch(SocketException&) {}
     }
+    
+    collector.join();
+
   } catch(SocketException& e) {
     std::cout<< "Exception caught: " << e.description() << std::endl;
   }

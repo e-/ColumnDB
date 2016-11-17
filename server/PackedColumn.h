@@ -17,9 +17,14 @@ template<class T>
 class PackedColumn : public TypedColumn<T>
 {
 public:
-  PackedColumn (const string& name, function<T(string)> parser) : TypedColumn<T>(name), mParser(parser) {
+  PackedColumn (const string& name, function<T(string)> parser, function<string(T)> stringify) 
+    : TypedColumn<T>(name), mParser(parser), mStringify(stringify){
     mValues = new set<T>();
     mIndex = 0;
+  }
+
+  Column *clone() {
+    return new PackedColumn(this -> getName(), mParser, mStringify);
   }
 
   ~PackedColumn() {
@@ -48,6 +53,10 @@ public:
 
     mBitPacker -> store(mIndex++, findIndex(converted));
   }  
+
+  string getStringValue(const uint index) {
+    return mStringify(mDict[mBitPacker -> load(index)]); 
+  }
 
   int findIndex(const T &value) { return lower_bound(mDict.begin(), mDict.end(), value) - mDict.begin(); }
   
@@ -82,6 +91,7 @@ private:
   vector<T> mDict;
   BitPacker *mBitPacker;
   function<T(const string&)> mParser;
+  function<string(T)> mStringify;
 
   int mRecordWidth; // in bits
   int mRecordCount;

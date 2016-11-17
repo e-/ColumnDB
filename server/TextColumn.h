@@ -52,6 +52,10 @@ public:
   const string &getValue(const uint index) {
     return mList[index];
   }
+  
+  string getStringValue(const uint index){
+    return mList[index];
+  }
 
   void printInfo() {
     cout << "Name: " << this -> getName() << endl;

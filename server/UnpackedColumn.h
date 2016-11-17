@@ -17,7 +17,12 @@ template<class T>
 class UnpackedColumn : public TypedColumn<T>
 {
 public:
-  UnpackedColumn (const string& name, function<T(string)> parser) : TypedColumn<T>(name), mParser(parser) {
+  UnpackedColumn (const string& name, function<T(string)> parser, function<string(T)> stringify) 
+    : TypedColumn<T>(name), mParser(parser), mStringify(stringify){
+  }
+
+  Column *clone() {
+    return new UnpackedColumn(this -> getName(), mParser, mStringify);
   }
 
   void addValue(const T &value) {};
@@ -30,6 +35,10 @@ public:
     T converted = mParser(value);
     mList.push_back(converted);
   }  
+
+  string getStringValue(const uint index) {
+    return mStringify(mList[index]);
+  }
 
   bool isValueAtIndexLessThan(const uint index, const T &value) {
     return mList[index] < value;
@@ -53,6 +62,7 @@ public:
   
 private:
   function<T(const string&)> mParser;
+  function<string(T)> mStringify;
   vector<T> mList;
 };
 

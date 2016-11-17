@@ -16,6 +16,7 @@ public:
   const string &getName(){return mName;}
   virtual void addValue(const string & value) {};
   virtual void insertValue(const string & value) {};
+  string getStringValue(const uint index) {};
   virtual void endAddingValues(int recordCount) {};
 
   virtual bool isValueAtIndexLessThan(const uint index, const T & value) {};

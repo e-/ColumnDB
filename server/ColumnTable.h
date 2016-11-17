@@ -6,6 +6,7 @@
 #include <cctype>
 #include <memory>
 #include <map>
+#include <mutex>
 
 #include "lib/csv_parser.hpp"
 
@@ -17,17 +18,7 @@
 using namespace std;
 
 class InterResult;
-
-class RowState {
-public:
-  RowState(bool isDirty, unsigned int versionPointer) : mIsDirty(isDirty), mVersionPointer(versionPointer) {};
-
-  bool mIsDirty = true;
-  unsigned int mVersionPointer;
-
-  bool mIsDeleted = false;
-  unsigned int mDeletedCsn;
-};
+class Version;
 
 class Version {
 public:
@@ -35,7 +26,18 @@ public:
 
   unsigned int mCsn;
   vector<string> mValues;
-  int mNext = -1;
+  shared_ptr<Version> mNext = nullptr;
+};
+
+class RowState {
+public:
+  RowState(bool isDirty, shared_ptr<Version> version) : mIsDirty(isDirty), mVersion(version) {};
+
+  bool mIsDirty = true;
+  shared_ptr<Version> mVersion = nullptr;
+
+  bool mIsDeleted = false;
+  unsigned int mDeletedCsn;
 };
 
 class ColumnTable
@@ -80,14 +82,17 @@ public:
   
   bool insert(const vector<string> &fields);
   bool update(const string &key, const vector<string> &fields);
-  
+  vector<string> scan(const string &key);
+  void collect();
+
+  mutex lock;
+
 private:
   string mName;
-  int mRowCount;
+  uint mRowCount = 0;
   vector<Column *> mColumns;
   map<string, RowState> mHash;
   unsigned int mCsn = 0;
-  vector<Version> mVersions;
 };
 
 

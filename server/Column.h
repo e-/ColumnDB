@@ -11,8 +11,10 @@ class Column
 {
 public:
   Column() {};
+  virtual Column* clone() {};
   virtual const string &getName(){};
   virtual void addValue(const string & value) {};
+  virtual string getStringValue(const uint index) {}
   virtual void insertValue(const string & value) {};
   virtual void endAddingValues(int recordCount) {};
 
