@@ -13,6 +13,7 @@ class TypedColumn : public Column
 {
 public:
   TypedColumn(const string& name) : mName(name) {};
+  virtual ~TypedColumn() {};
   const string &getName(){return mName;}
   virtual void addValue(const string & value) {};
   virtual void insertValue(const string & value) {};

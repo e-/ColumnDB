@@ -26,7 +26,7 @@ public:
   
   InterResult(shared_ptr<InterResult> res) : mTables(res -> mTables), mColumns(res -> mColumns), mRowIndices(res -> mRowIndices) {}
 
-  Column *getColumnByName(const string &name) {
+  shared_ptr<Column> getColumnByName(const string &name) {
     for(auto &columns : mColumns) {
       for(auto &column : columns) {
         if(name == column->getName()) {
@@ -65,7 +65,7 @@ public:
   void show(int n = 10);
 
   vector<ColumnTable *> mTables;
-  vector<vector<Column *>> mColumns;
+  vector<vector<shared_ptr<Column>>> mColumns;
   vector<vector<uint>> mRowIndices;
 };
 

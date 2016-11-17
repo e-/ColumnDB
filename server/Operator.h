@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <map>
+#include <memory>
 
 #include "InterResult.h"
 #include "TextColumn.h"
@@ -12,7 +13,7 @@ namespace Op {
 
   shared_ptr<InterResult> where(shared_ptr<InterResult> src, const string &name, Comp comp, const int value) {
     shared_ptr<InterResult> res(new InterResult(src));
-    Column *column = res -> getColumnByName(name);
+    shared_ptr<Column> column = res -> getColumnByName(name);
     int iri = res -> findIndexByColumnName(name);
     
     res -> clearAllRowIndices();
@@ -22,13 +23,13 @@ namespace Op {
       index ++;
       switch(comp) {
         case LT:
-          if(((TypedColumn<int> *)column) -> isValueAtIndexLessThan(targetIndex, value)) {
+          if(((TypedColumn<int> *)column.get()) -> isValueAtIndexLessThan(targetIndex, value)) {
             break;
           }
           continue;
 
         case GT:
-          if(((TypedColumn<int> *)column) -> isValueAtIndexGreaterThan(targetIndex, value)) {
+          if(((TypedColumn<int> *)column.get()) -> isValueAtIndexGreaterThan(targetIndex, value)) {
             break;
           }
           continue;
@@ -60,9 +61,9 @@ namespace Op {
     res1 -> clearAllRowIndices();
     res2 -> clearAllRowIndices();
     
-    TypedColumn<int> *column1 = (TypedColumn<int> *)src1 -> getColumnByName(cname1);
+    TypedColumn<int> *column1 = (TypedColumn<int> *)src1 -> getColumnByName(cname1).get();
     int partialIndex1 = src1 -> findIndexByColumnName(cname1);
-    TypedColumn<int> *column2 = (TypedColumn<int> *)src2 -> getColumnByName(cname2);
+    TypedColumn<int> *column2 = (TypedColumn<int> *)src2 -> getColumnByName(cname2).get();
     int partialIndex2 = src2 -> findIndexByColumnName(cname2);
 
     // src1 is bigger than src2
@@ -105,7 +106,7 @@ namespace Op {
   shared_ptr<InterResult> contains(shared_ptr<InterResult> src, const string &name, const string &value, const bool plural) {
     shared_ptr<InterResult> res(new InterResult(src));
 
-    TextColumn *column = (TextColumn *)res -> getColumnByName(name);
+    TextColumn *column = (TextColumn *)res -> getColumnByName(name).get();
     int iri = res -> findIndexByColumnName(name);
     
     res -> clearAllRowIndices();

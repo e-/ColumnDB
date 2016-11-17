@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <algorithm>
 #include <functional>
+#include <memory>
 
 #include "BitPacker.h"
 #include "TypedColumn.h"
@@ -19,33 +20,25 @@ class PackedColumn : public TypedColumn<T>
 public:
   PackedColumn (const string& name, function<T(string)> parser, function<string(T)> stringify) 
     : TypedColumn<T>(name), mParser(parser), mStringify(stringify){
-    mValues = new set<T>();
     mIndex = 0;
   }
 
-  Column *clone() {
-    return new PackedColumn(this -> getName(), mParser, mStringify);
-  }
-
-  ~PackedColumn() {
-    delete mBitPacker;
-    delete mValues;
+  shared_ptr<Column> clone() {
+    return shared_ptr<Column>(new PackedColumn(this -> getName(), mParser, mStringify));
   }
 
   void addValue(const string &value) {
     T converted = mParser(value);
-    mValues -> insert(converted);
+    mValues.insert(converted);
   }
   
-  int getCardinality() { return mValues->size(); };
+  int getCardinality() { return mValues.size(); };
 
   void endAddingValues(int recordCount) {
-    mDict = vector<T>(mValues->begin(), mValues->end());
+    mDict = vector<T>(mValues.begin(), mValues.end());
     mRecordWidth = ceil(log2(mDict.size()));
     mRecordCount = recordCount;
-    mBitPacker = new BitPacker(mRecordWidth, mRecordCount);
-
-    delete mValues;
+    mBitPacker = shared_ptr<BitPacker>(new BitPacker(mRecordWidth, mRecordCount));
   }
 
   void insertValue(const string &value) {
@@ -87,9 +80,9 @@ public:
   
 
 private:
-  set<T> *mValues;
+  set<T> mValues;
   vector<T> mDict;
-  BitPacker *mBitPacker;
+  shared_ptr<BitPacker> mBitPacker;
   function<T(const string&)> mParser;
   function<string(T)> mStringify;
 

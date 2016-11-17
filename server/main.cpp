@@ -33,7 +33,7 @@ string stringParser(const string &s) {
 }
 
 string stringToString(string s) {
-  return s;
+  return string(s);
 }
 
 void split(const string &s, char delim, vector<string> &elems) {
@@ -51,9 +51,15 @@ vector<string> split(const string &s, char delim) {
   return elems;
 }
 
+int i=0;
+
 void collect(ColumnTable &columnTable) {
   while(1) {
     this_thread::sleep_for(chrono::milliseconds(2000));
+    cout << "======================================" << endl;
+    cout << "total tx processed: " << i << endl;
+    cout << "total rows inserted: " << columnTable.getRowCount() << endl;
+
     columnTable.lock.lock();
     columnTable.collect();
     columnTable.lock.unlock();
@@ -63,29 +69,31 @@ void collect(ColumnTable &columnTable) {
 int main(int argc, char* argv[]) {
   ColumnTable columnTable("Test Database");
   
-  columnTable.addColumn(new UnpackedColumn<int>("o_orderkey", intParser, intToString));
-  columnTable.addColumn(new PackedColumn<string>("o_orderstatus", stringParser, stringToString));
-  columnTable.addColumn(new PackedColumn<int>("o_totalprice", intParser, intToString));
-  columnTable.addColumn(new UnpackedColumn<string>("o_comment", stringParser, stringToString));
+  columnTable.addColumn(shared_ptr<Column>(new UnpackedColumn<int>("o_orderkey", intParser, intToString)));
+  columnTable.addColumn(shared_ptr<Column>(new PackedColumn<string>("o_orderstatus", stringParser, stringToString)));
+  columnTable.addColumn(shared_ptr<Column>(new PackedColumn<int>("o_totalprice", intParser, intToString)));
+  columnTable.addColumn(shared_ptr<Column>(new UnpackedColumn<string>("o_comment", stringParser, stringToString)));
 
 
   try {
     // Create the Socket
     ServerSocket server(30001);
-    
     thread collector(collect, ref(columnTable));
 
     while(true) {
-      ServerSocket new_sock;
-      server.accept(new_sock);
+      ServerSocket new_socks[2];
+      server.accept(new_socks[0]);
+      server.accept(new_socks[1]);
+      int flag = 0;
 
       try {
         while(true) {
+          i++;
           string data;
+          ServerSocket &new_sock = new_socks[flag];
+          flag = !flag;
           new_sock >> data;
-          cout << "[Received]\t" << data << std::endl;
-
-          // INSERT|5020067|"F"|215675|"e the grouches wake furiously about the furiously regular shea"
+//          cerr << data << '\n';
          
           vector<string> request = split(data, '|');
           if(!request.size()) continue;
@@ -96,15 +104,17 @@ int main(int argc, char* argv[]) {
           columnTable.lock.lock();
           if(command == "INSERT") {
             bool result = columnTable.insert(args);
-            new_sock << "insert";
             if(result) 
-              new_sock << "success";
+              new_sock << "insert success";
           }
           else if(command == "UPDATE") {
-            
+            bool result = columnTable.update(args[0], args);
+            if(result) 
+              new_sock << "update success";
           }
           else if(command == "SCAN") {
-
+            vector<string> result = columnTable.scan(args[0]);
+            new_sock << result[0] + "|" + result[1] + "|" + result[2] + "|" + result[3];
           }
           columnTable.lock.unlock();
         }

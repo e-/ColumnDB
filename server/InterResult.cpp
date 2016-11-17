@@ -17,10 +17,10 @@ void InterResult::show(int n) {
     for(int j = 0; j < mTables.size(); ++j) {
       for(auto &column : mColumns[j]) {
         if(Column::IsString(column)) {
-          cout << ((TypedColumn<string> *)column) -> getValue(mRowIndices[j][i]) << ',';
+          cout << ((TypedColumn<string> *)column.get()) -> getValue(mRowIndices[j][i]) << ',';
         }
         else if(Column::IsInt(column)){
-          cout << ((TypedColumn<int> *)column) -> getValue(mRowIndices[j][i]) << ',';
+          cout << ((TypedColumn<int> *)column.get()) -> getValue(mRowIndices[j][i]) << ',';
         }
       }
     }

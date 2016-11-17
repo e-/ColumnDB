@@ -22,11 +22,11 @@ class Version;
 
 class Version {
 public:
-  Version(unsigned int csn, const vector<string> &values): mCsn(csn), mValues(values) {};
+  Version(uint csn, const vector<string> &values): mCsn(csn), mValues(values) {};
 
-  unsigned int mCsn;
+  uint mCsn;
   vector<string> mValues;
-  shared_ptr<Version> mNext = nullptr;
+  shared_ptr<Version> mNext;
 };
 
 class RowState {
@@ -54,7 +54,7 @@ public:
 
   int getRowCount() {return mRowCount;}
 
-  void addColumn(Column *column) {
+  void addColumn(shared_ptr<Column> column) {
     mColumns.push_back(column);
   }
 
@@ -69,7 +69,7 @@ public:
     return false;
   }
 
-  Column *getColumnByName(const string &name) {
+  shared_ptr<Column> getColumnByName(const string &name) {
     for(auto &column : mColumns) {
       if(name == (*column).getName()) {
         return column;
@@ -90,7 +90,7 @@ public:
 private:
   string mName;
   uint mRowCount = 0;
-  vector<Column *> mColumns;
+  vector<shared_ptr<Column>> mColumns;
   map<string, RowState> mHash;
   unsigned int mCsn = 0;
 };

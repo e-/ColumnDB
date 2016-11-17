@@ -92,17 +92,20 @@ bool ColumnTable::update(const string &key, const vector<string> &fields) {
 
   // mark the row as dirty
   rowState.mIsDirty = true;
-
   // create new version
-  shared_ptr<Version> version(new Version(csn, fields));
+  Version * v = new Version(csn, fields);
+  shared_ptr<Version> version(v);
 
   // add it to the last
   auto curr = rowState.mVersion;
 
-  if(rowState.mVersion == nullptr) rowState.mVersion = version;
-  else while(curr -> mNext != nullptr) curr = curr -> mNext;
-
-  curr -> mNext = version;
+  if(!rowState.mVersion) {
+    rowState.mVersion = version;
+  }
+  else {
+    while(curr -> mNext != nullptr) curr = curr -> mNext;
+    curr -> mNext = version;
+  }
 
   return true;
 }
@@ -117,12 +120,30 @@ vector<string> ColumnTable::scan(const string &key) {
   }
   
   RowState &rowState = kv -> second;
-  auto curr = rowState.mVersion;
 
-  while(curr -> mNext != nullptr && curr -> mNext -> mCsn < csn) curr = curr -> mNext;
+  if(rowState.mIsDirty) {
+    auto curr = rowState.mVersion;
 
-  if(curr -> mCsn < csn) {
-    // load values    
+    while(curr -> mNext != nullptr && curr -> mNext -> mCsn < csn) curr = curr -> mNext;
+    return curr -> mValues;
+  }
+  else {
+    uint index = 0;
+    
+    auto &keyColumn = mColumns[0];
+    
+    for(index = 0; index < mRowCount; ++index) {
+      if(keyColumn -> getStringValue(index) == key)
+        break;
+    }
+
+    if(index == mRowCount) {
+      return res;
+    }
+
+    for(auto &column : mColumns) {
+      res.push_back(column -> getStringValue(index));
+    }
   }
   
   return res;
@@ -131,42 +152,38 @@ vector<string> ColumnTable::scan(const string &key) {
 void ColumnTable::collect() {
   // maintain a row state for each inserted record even though it is garbage collected (for dirty bit checking)
  
-  cerr << "starting garbage collection" << endl;
-
   bool dirty = false;
   for(auto it = mHash.begin(); it != mHash.end(); it++) {
     if(it -> second.mIsDirty)
       dirty = true;
   }
   if(!dirty) {
-    cerr << "no dirty records, exiting" << endl;
     return;
   }
   
-  cerr << "creating new columns" << endl;
-
-  vector<Column *> newColumns;
+  vector<shared_ptr<Column>> newColumns;
   for(auto &column : mColumns) {
     newColumns.push_back(column -> clone());
   }
 
-  cerr << "column copied" << endl;
-
-  // insert all current values
-
   int cn = mColumns.size();
+  int updated = 0;
+  
   uint oldRowCount = mRowCount;
-  cerr << oldRowCount << endl;
 
   for(uint i = 0; i < oldRowCount; ++i) {
-    for(int j = 0; j < cn; ++j) {
-      string temp = mColumns[j] -> getStringValue(i);
-      newColumns[j] -> addValue(temp);
+    auto key = mColumns[0] -> getStringValue(i);
+    if(!mHash.find(key) -> second.mIsDirty) {
+      for(int j = 0; j < cn; ++j) {
+        string temp = mColumns[j] -> getStringValue(i);
+        newColumns[j] -> addValue(temp);
+      }
+    }
+    else {
+      updated ++;
     }
   }
   
-  cerr << "current values inserted" << endl;
-
   for(auto it = mHash.begin(); it != mHash.end(); it++) {
     auto &key = it -> first; 
     RowState &rowState = it -> second;
@@ -179,7 +196,6 @@ void ColumnTable::collect() {
       
       // use version.mValues;
       for(int j = 0; j < cn; ++j) {
-     //   cerr << version -> mValues[j] << endl;
         newColumns[j] -> addValue(version -> mValues[j]);
       }
 
@@ -187,21 +203,22 @@ void ColumnTable::collect() {
     }    
   }
   
-  cerr << "values added" << mRowCount << endl;
+  mRowCount -= updated;
 
-  for(auto c : newColumns) {
+  for(auto &c : newColumns) {
     c -> endAddingValues(mRowCount);
   }
-  cerr << "endAddingValues" << endl;
 
   // copy previously inserted values
   for(uint i = 0; i < oldRowCount; ++i) {
-    for(int j = 0; j < cn; ++j) {
-      newColumns[j] -> insertValue(mColumns[j] -> getStringValue(i));
+    auto key = mColumns[0] -> getStringValue(i);
+    if(!mHash.find(key) -> second.mIsDirty) {
+      for(int j = 0; j < cn; ++j) {
+        string temp = mColumns[j] -> getStringValue(i);
+        newColumns[j] -> insertValue(temp);
+      }
     }
   }
-  
-  cerr << "qwer" << endl;
   
   for(auto it = mHash.begin(); it != mHash.end(); it++) {
     auto &key = it -> first; 
@@ -223,14 +240,9 @@ void ColumnTable::collect() {
     }    
   }
   
-  for(auto &column : mColumns)
-    delete column;
-
   mColumns = newColumns;
 
   for(auto &column : mColumns) {
     column -> printInfo();
   }
-
-  cerr << "garbage collected!" << endl;
 }

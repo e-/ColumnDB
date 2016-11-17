@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <vector>
 #include <functional>
+#include <memory>
 
 #include "BitPacker.h"
 #include "TypedColumn.h"
@@ -21,8 +22,8 @@ public:
     : TypedColumn<T>(name), mParser(parser), mStringify(stringify){
   }
 
-  Column *clone() {
-    return new UnpackedColumn(this -> getName(), mParser, mStringify);
+  shared_ptr<Column> clone() {
+    return shared_ptr<Column>(new UnpackedColumn(this -> getName(), mParser, mStringify));
   }
 
   void addValue(const T &value) {};
@@ -32,8 +33,11 @@ public:
   void endAddingValues(int recordCount) {  }
 
   void insertValue(const string &value) {
+//    cerr << 'a';
     T converted = mParser(value);
+//    cerr << 's' << mList.size() << converted << endl;
     mList.push_back(converted);
+//    cerr << 'd';
   }  
 
   string getStringValue(const uint index) {

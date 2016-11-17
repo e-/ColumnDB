@@ -20,11 +20,11 @@ public:
     }
     mLength = (int)ceil((mWidth * mSize) / BLOCK);
 
-    mBlocks = new uint[mLength];
+    mBlocks = new uint[mLength + 1];
     memset(mBlocks, 0, mLength);
   };
 
-  virtual ~BitPacker() {
+  ~BitPacker() {
     delete mBlocks;
   };
 
