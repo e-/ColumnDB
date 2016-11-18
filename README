@@ -1,6 +1,6 @@
-To compile, enter `make`.
+To compile, enter `make` in each subdirectory (i.e., server, client1, client2).
 Make sure that you have installed the recent version of `g++`.
 
-To run, enter `./main <data_to_path>`.
-e.g., ./main data/data.csv
+Run the server first by entering `cd server; ./main`.
+Then, open two additional terminals for each client (i.e. client1, client2), and enter `./client`.
 

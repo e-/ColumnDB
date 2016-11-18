@@ -1,5 +1,5 @@
 CC=g++
-FLAGS=
+FLAGS= -O2
 
 all: csv_parser.o ColumnTable.o ServerSocket.o Socket.o
 	$(CC) main.cpp -o main -std=c++11 csv_parser.o ColumnTable.o InterResult.o Column.o ServerSocket.o Socket.o $(FLAGS) -pthread

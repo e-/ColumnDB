@@ -52,16 +52,21 @@ vector<string> split(const string &s, char delim) {
 }
 
 int i=0;
-
 void collect(ColumnTable &columnTable) {
+  int cnt = 0;
   while(1) {
+    cnt++;
     this_thread::sleep_for(chrono::milliseconds(2000));
     cout << "======================================" << endl;
     cout << "total tx processed: " << i << endl;
     cout << "total rows inserted: " << columnTable.getRowCount() << endl;
+    cout << "total garbage collected: " << cnt << endl;
 
     columnTable.lock.lock();
+    Timer timer;
+    timer.start();
     columnTable.collect();
+    cout << timer.end() << " elapsed" << endl;
     columnTable.lock.unlock();
   }
 }
