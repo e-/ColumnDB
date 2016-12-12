@@ -7,6 +7,7 @@
 #include <memory>
 #include <map>
 #include <mutex>
+#include <sstream>
 
 #include "lib/csv_parser.hpp"
 
@@ -14,6 +15,7 @@
 #include "PackedColumn.h"
 #include "UnpackedColumn.h"
 #include "Timer.h"
+#include "LogManager.h"
 
 using namespace std;
 
@@ -44,7 +46,10 @@ class ColumnTable
 {
   friend class InterResult;
 public:
-  ColumnTable(const string& name) : mName(name) {};
+  ColumnTable(const string& name, const string& logPath) : mName(name) {
+    shared_ptr<LogManager> lm(new LogManager(logPath));
+    mLogManager = lm;
+  };
 
   virtual ~ColumnTable() {};
 
@@ -93,6 +98,7 @@ private:
   vector<shared_ptr<Column>> mColumns;
   map<string, RowState> mHash;
   unsigned int mCsn = 0;
+  shared_ptr<LogManager> mLogManager;
 };
 
 

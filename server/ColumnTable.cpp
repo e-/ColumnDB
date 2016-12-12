@@ -69,12 +69,24 @@ void ColumnTable::loadCSV(const char * path, const char field_terminator) {
   }
 }
 
+string join(const vector<string> &fields) {
+  stringstream ss;
+  for(size_t i = 0; i < fields.size(); ++i)
+  {
+    if(i != 0)
+      ss << ",";
+    ss << fields[i];
+  }
+  return ss.str();
+}
+
 bool ColumnTable::insert(const vector<string> &fields) {
   unsigned int csn = ++mCsn;
   shared_ptr<Version> version(new Version(csn, fields));
 
   RowState rowState(true, version);
 
+  mLogManager -> append(join(fields));
   mHash.insert({fields[0], rowState});
   
   return true;
@@ -88,6 +100,7 @@ bool ColumnTable::update(const string &key, const vector<string> &fields) {
     return false; // no corresponding data
   }
 
+    
   RowState &rowState = kv -> second;
 
   // mark the row as dirty
@@ -101,9 +114,12 @@ bool ColumnTable::update(const string &key, const vector<string> &fields) {
 
   if(!rowState.mVersion) {
     rowState.mVersion = version;
+    mLogManager -> append(join(fields));
   }
   else {
     while(curr -> mNext != nullptr) curr = curr -> mNext;
+
+    mLogManager -> append(join(curr -> mValues) + "," + join(fields));
     curr -> mNext = version;
   }
 

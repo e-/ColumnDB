@@ -1,3 +1,6 @@
 *.csv
 a.out
 *.gch
+*.txt
+*.log
+*.o

@@ -18,6 +18,8 @@
 #include "Operator.h"
 #include "InterResult.h"
 
+#define LOG_PATH "log.txt"
+
 using namespace std;
 
 int intParser(const string &s) {
@@ -72,7 +74,7 @@ void collect(ColumnTable &columnTable) {
 }
 
 int main(int argc, char* argv[]) {
-  ColumnTable columnTable("Test Database");
+  ColumnTable columnTable("Test Database", LOG_PATH);
   
   columnTable.addColumn(shared_ptr<Column>(new UnpackedColumn<int>("o_orderkey", intParser, intToString)));
   columnTable.addColumn(shared_ptr<Column>(new PackedColumn<string>("o_orderstatus", stringParser, stringToString)));
