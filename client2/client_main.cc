@@ -36,12 +36,11 @@ int main(int argc, char* argv[]) {
           // insert
           string message = "INSERT|" + to_string(unique(id)) + "|0|0|asdfasdf";
           id++;
-          out << "[Sending]\t" + message + "\n";
           cout << "[Sending]\t" + message + "\n";
           c_socket << message;
           c_socket >> reply;
 
-          out << "[Response]\t" << reply << "\n";
+          out << to_string(unique(id)) + "," + "0,0,asdfasdf" << endl;
           cout << "[Response]\t" << reply << "\n";
         }
         else if(r < 80) { 
@@ -50,24 +49,21 @@ int main(int argc, char* argv[]) {
           int t = rand() % id;
           arr[t] = rand() % 10000;
           string message = "UPDATE|" + to_string(unique(t)) + "|" + to_string(arr[t]) + "|" + to_string(arr[t]) + "|asdfasdf";
-          out << "[Sending]\t" + message + "\n";
           cout << "[Sending]\t" + message + "\n";
           c_socket << message;
           c_socket >> reply;
 
-          out << "[Response]\t" << reply << "\n";
+          out << to_string(unique(t)) + "," + to_string(arr[t]) + "," + to_string(arr[t]) + ",asdfasdf" << endl;
           cout << "[Response]\t" << reply << "\n";
         }
-        else {
+        else{
           // scan
           int t = rand() % id;
           string message = "SCAN|" + to_string(unique(t));
-          out << "[Sending]\t" + message + "\n";
           cout << "[Sending]\t" + message + "\n";
           c_socket << message;
           c_socket >> reply;
 
-          out << "[Response]\t" << reply << "\n";
           cout << "[Response]\t" << reply << "\n";
           
           if(reply != to_string(unique(t)) + "|" + to_string(arr[t]) + "|" + to_string(arr[t]) + "|asdfasdf") {
