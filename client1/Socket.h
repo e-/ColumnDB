@@ -10,6 +10,11 @@
 #include <string>
 #include <arpa/inet.h>
 
+#if defined(__APPLE__) || defined(__MACH__)
+# ifndef MSG_NOSIGNAL
+#   define MSG_NOSIGNAL SO_NOSIGPIPE
+# endif
+#endif
 
 const int MAXHOSTNAME = 200;
 const int MAXCONNECTIONS = 5;

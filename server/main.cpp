@@ -5,6 +5,7 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include <fstream>
 
 #include "ServerSocket.h"
 #include "SocketException.h"
@@ -17,41 +18,11 @@
 #include "TextColumn.h"
 #include "Operator.h"
 #include "InterResult.h"
+#include "Util.h"
 
 #define LOG_PATH "log.txt"
 
 using namespace std;
-
-int intParser(const string &s) {
-  return stoi(s);
-}
-
-string intToString(int a) {
-  return to_string(a);
-}
-
-string stringParser(const string &s) {
-  return string(s);
-}
-
-string stringToString(string s) {
-  return string(s);
-}
-
-void split(const string &s, char delim, vector<string> &elems) {
-  stringstream ss;
-  ss.str(s);
-  string item;
-  while (getline(ss, item, delim)) {
-    elems.push_back(item);
-  }
-}
-
-vector<string> split(const string &s, char delim) {
-  vector<string> elems;
-  split(s, delim, elems);
-  return elems;
-}
 
 int i=0;
 void collect(ColumnTable &columnTable) {
@@ -73,8 +44,49 @@ void collect(ColumnTable &columnTable) {
   }
 }
 
+int intParser(const string &s) {
+  return stoi(s);
+}
+
+string intToString(int a) {
+  return to_string(a);
+}
+
+string stringParser(const string &s) {
+  return string(s);
+}
+
+string stringToString(string s) {
+  return string(s);
+}
+
+void stringSplit(const string &s, char delim, vector<string> &elems) {
+  stringstream ss;
+  ss.str(s);
+  string item;
+  while (getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+}
+
+vector<string> stringSplit(const string &s, char delim) {
+  vector<string> elems;
+  stringSplit(s, delim, elems);
+  return elems;
+}
+
 int main(int argc, char* argv[]) {
-  ColumnTable columnTable("Test Database", LOG_PATH);
+  ifstream log(LOG_PATH);
+  bool recovery = false;
+  if(log.good()) {
+    cout << "A log file exists. Do you want to recover the last state? [Y / N]" << endl;
+    string ans;
+    cin >> ans;
+    
+    recovery = ans == "y" || ans == "Y";
+  }
+  
+  ColumnTable columnTable("Test Database", LOG_PATH, recovery);
   
   columnTable.addColumn(shared_ptr<Column>(new UnpackedColumn<int>("o_orderkey", intParser, intToString)));
   columnTable.addColumn(shared_ptr<Column>(new PackedColumn<string>("o_orderstatus", stringParser, stringToString)));
@@ -102,7 +114,7 @@ int main(int argc, char* argv[]) {
           new_sock >> data;
 //          cerr << data << '\n';
          
-          vector<string> request = split(data, '|');
+          vector<string> request = stringSplit(data, '|');
           if(!request.size()) continue;
 
           string command = request[0];

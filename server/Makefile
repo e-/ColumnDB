@@ -1,18 +1,21 @@
 CC=g++
-FLAGS= -O2 -std=c++11
+FLAGS= -O2 -std=c++11 
 
-all: csv_parser.o ColumnTable.o ServerSocket.o Socket.o LogManager.o
-	$(CC) main.cpp -o main -std=c++11 csv_parser.o ColumnTable.o InterResult.o Column.o ServerSocket.o Socket.o LogManager.o $(FLAGS) -pthread
+all: csv_parser.o ColumnTable.o ServerSocket.o Socket.o LogManager.o Column.o
+	$(CC) main.cpp -o main csv_parser.o ColumnTable.o InterResult.o Column.o ServerSocket.o Socket.o LogManager.o $(FLAGS) -pthread
 	./main 
 
-ServerSocket.o:
+ServerSocket.o: ServerSocket.cc
 	$(CC) -c ServerSocket.cc $(FLAGS)
 
-Socket.o:
+Socket.o: Socket.cc
 	$(CC) -c Socket.cc $(FLAGS)
 
-ColumnTable.o: ColumnTable.cpp InterResult.cpp Column.cpp TypedColumn.h ColumnTable.h BitPacker.h
-	$(CC) -c Column.cpp ColumnTable.cpp InterResult.cpp $(FLAGS)
+ColumnTable.o: ColumnTable.cpp InterResult.cpp
+	$(CC) -c ColumnTable.cpp InterResult.cpp $(FLAGS)
+
+Column.o: Column.cpp 
+	$(CC) -c Column.cpp $(FLAGS)
 
 csv_parser.o: lib/csv_parser.cpp
 	$(CC) -c lib/csv_parser.cpp $(FLAGS)

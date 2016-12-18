@@ -9,21 +9,14 @@
 #include "ColumnTable.h"
 
 using namespace std;
+class ColumnTable;
 
 class InterResult
 {
 public:
   InterResult() = default;
-  InterResult(ColumnTable *table) {
-    mTables.push_back(table);
-    mColumns.push_back(table -> mColumns);
-   
-    vector<uint> indices(table -> mRowCount);
-    mRowIndices.push_back(indices);
-    for(uint i = 0; i < table -> mRowCount; ++i)
-      mRowIndices[0][i] = i;
-  }
-  
+  InterResult(ColumnTable *table);
+ 
   InterResult(shared_ptr<InterResult> res) : mTables(res -> mTables), mColumns(res -> mColumns), mRowIndices(res -> mRowIndices) {}
 
   shared_ptr<Column> getColumnByName(const string &name) {

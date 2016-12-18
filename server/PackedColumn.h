@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <functional>
 #include <memory>
+#include <vector>
 
 #include "BitPacker.h"
 #include "TypedColumn.h"

@@ -13,7 +13,7 @@ using namespace std;
 class LogManager
 {
 public:
-  LogManager(const string &path);
+  LogManager(const string &path, bool append);
   ~LogManager();
 
   void start();

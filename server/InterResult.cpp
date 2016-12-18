@@ -1,5 +1,15 @@
 #include "InterResult.h"
 
+InterResult::InterResult(ColumnTable *table) {
+  mTables.push_back(table);
+  mColumns.push_back(table -> mColumns);
+ 
+  vector<uint> indices(table -> mRowCount);
+  mRowIndices.push_back(indices);
+  for(uint i = 0; i < table -> mRowCount; ++i)
+    mRowIndices[0][i] = i;
+}
+
 void InterResult::show(int n) {
   if(n > mRowIndices[0].size()) n = mRowIndices[0].size();
   

@@ -43,7 +43,7 @@ namespace Op {
     return res;
   }
 
-  shared_ptr<InterResult> join(shared_ptr<InterResult> src1, shared_ptr<InterResult> src2, const string &name1, const string &name2) {
+  shared_ptr<InterResult> nestedLoopJoin(shared_ptr<InterResult> src1, shared_ptr<InterResult> src2, const string &name1, const string &name2) {
     string cname1 = name1;
     string cname2 = name2;
     if(src1 -> getRowCount() < src2 -> getRowCount()) {

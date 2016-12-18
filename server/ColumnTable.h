@@ -16,6 +16,8 @@
 #include "UnpackedColumn.h"
 #include "Timer.h"
 #include "LogManager.h"
+#include "InterResult.h"
+#include "Util.h"
 
 using namespace std;
 
@@ -46,11 +48,7 @@ class ColumnTable
 {
   friend class InterResult;
 public:
-  ColumnTable(const string& name, const string& logPath) : mName(name) {
-    shared_ptr<LogManager> lm(new LogManager(logPath));
-    mLogManager = lm;
-  };
-
+  ColumnTable(const string& name, const string& logPath, bool recovery);
   virtual ~ColumnTable() {};
 
   string getName() {

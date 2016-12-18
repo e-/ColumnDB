@@ -1,10 +1,9 @@
 #include "LogManager.h"
 
-LogManager::LogManager(const string &path) {
-
-  th = make_shared<thread>(thread([=]{ log(); })); 
+LogManager::LogManager(const string &path, bool recovery) {
   this -> path = path;
-  file.open(path); 
+  file.open(path, (recovery ? ofstream::app : ofstream::out)); 
+  th = make_shared<thread>(thread([=]{ log(); })); 
 }
 
 LogManager::~LogManager() {
