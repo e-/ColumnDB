@@ -9,6 +9,10 @@
 #include <functional> 
 #include <cctype>
 #include <locale>
+#include <thread>
+
+#include "ClientSocket.h" 
+#include "SocketException.h" 
 
 using namespace std;
 
@@ -51,13 +55,60 @@ void handleText(const string& path) {
   }
 }
 
+void split(const string &s, char delim, vector<string> &elems) {
+  stringstream ss;
+  ss.str(s);
+  string item;
+  while (getline(ss, item, delim)) {
+    elems.push_back(item);
+  }
+}
+
+vector<string> split(const string &s, char delim) {
+  vector<string> elems;
+  split(s, delim, elems);
+  return elems;
+}
+
 int main(){
   handleText("../client1/client.log");
   handleText("../client2/client.log");
 
-  for(auto &kv : m) {
-    cout << kv.second << endl;
+  try {
+    // Create the Socket
+    ClientSocket c_socket[2] = {
+      ClientSocket("localhost", 30001),
+      ClientSocket("localhost", 30001)
+    };
+
+    string reply;
+    int id = 0, inter = 0;
+
+    for(auto &kv : m) {
+      vector<string> p = split(kv.second, ',');
+      c_socket[inter] << "SCAN|" + p[0];
+      string reply;
+      c_socket[inter] >> reply;
+     
+      for(auto &c : reply) {
+        if(c == '|') c = ',';
+      } 
+
+      if(reply != kv.second) {
+        cout << "Inconsistent" << reply << ' ' << kv.second << endl;
+        return 1;
+      }
+      inter = !inter;
+      this_thread::sleep_for(chrono::milliseconds(1));
+    }
+
+    cout << "Check Completed" << endl;
+    
+  } catch(SocketException& e) {
+      std::cout << "Exception caught: " << e.description() << std::endl;
   }
+
+ 
 
   return 0;
 }

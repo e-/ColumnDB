@@ -48,9 +48,10 @@ class ColumnTable
 {
   friend class InterResult;
 public:
-  ColumnTable(const string& name, const string& logPath, bool recovery);
+  ColumnTable(const string& name);
   virtual ~ColumnTable() {};
 
+  void enableLogging(const string& logPath, bool recovery);
   string getName() {
     return mName;
   }

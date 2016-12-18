@@ -1,6 +1,8 @@
+
+executable=check
+
 all:
-	g++ check.cpp -o check -std=c++11
-	./check
+	g++ -o ${executable} *.cpp *.cc -std=c++11
 
 clean:
-	rm check
+	rm ${executable}

@@ -27,18 +27,29 @@ vector<string> split(const string &s, char delim) {
   return elems;
 }
 
-ColumnTable::ColumnTable(const string& name, const string& logPath, bool recovery) {
+ColumnTable::ColumnTable(const string& name) {
+  this -> mName = name;
+}
+
+void ColumnTable::enableLogging(const string& logPath, bool recovery) {
   if(recovery) {
     ifstream logFile(logPath);
     string log;
 
     while(getline(logFile, log)) {
       vector<string> args = split(log, ',');
-      cout << args[0] << endl;
+      if(args[0] == "insert") {
+        vector<string> p(args.end() - mColumns.size(), args.end());
+
+        insert(p);
+      }
+      else if(args[0] == "update") {
+        vector<string> p(args.end() - mColumns.size(), args.end());
+        update(p[0], p);
+      }
     }
   }
 
-  this -> mName = name;
   shared_ptr<LogManager> lm(new LogManager(logPath, recovery));
   mLogManager = lm;
 }
@@ -118,7 +129,8 @@ bool ColumnTable::insert(const vector<string> &fields) {
 
   RowState rowState(true, version);
 
-  mLogManager -> append(stringJoin(fields));
+  if(mLogManager)
+    mLogManager -> append("insert," + stringJoin(fields));
   mHash.insert({fields[0], rowState});
   
   return true;
@@ -146,12 +158,15 @@ bool ColumnTable::update(const string &key, const vector<string> &fields) {
 
   if(!rowState.mVersion) {
     rowState.mVersion = version;
-    mLogManager -> append(stringJoin(fields));
+
+    if(mLogManager)
+      mLogManager -> append("update," + stringJoin(fields));
   }
   else {
     while(curr -> mNext != nullptr) curr = curr -> mNext;
 
-    mLogManager -> append(stringJoin(curr -> mValues) + "," + stringJoin(fields));
+    if(mLogManager)
+      mLogManager -> append("update," + stringJoin(curr -> mValues) + "," + stringJoin(fields));
     curr -> mNext = version;
   }
 

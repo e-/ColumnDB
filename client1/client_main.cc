@@ -20,8 +20,18 @@ int unique(int id){
   return id * 2 + 1;
 }
 
+string randomString(int seed) {
+  string a;
+  for(int i=0;i<10;++i) {
+    a += (char)('A' + seed % 26);
+    
+    seed = (seed * 7 + 2) % 26;
+  }
+  return a;
+}
+
 int main(int argc, char* argv[]) {
-    srand(0); //time(NULL));
+    srand(time(NULL));
     try {
       // Create the Socket
       ClientSocket c_socket("localhost", 30001);
@@ -34,26 +44,27 @@ int main(int argc, char* argv[]) {
 
         if(r < 30 || id == 0) {
           // insert
-          string message = "INSERT|" + to_string(unique(id)) + "|0|0|asdfasdf";
-          id++;
+          arr[id] = rand() % 10000;
+          string message = "INSERT|" + to_string(unique(id)) + "|" + to_string(arr[id]) + "|" + to_string(arr[id]) + "|" + randomString(arr[id]);
           cout << "[Sending]\t" + message + "\n";
           c_socket << message;
           c_socket >> reply;
 
-          out << to_string(unique(id)) + "," + "0,0,asdfasdf" << endl;
+          out << to_string(unique(id)) + "," + to_string(arr[id]) + "," + to_string(arr[id]) + "," + randomString(arr[id]) << endl;
           cout << "[Response]\t" << reply << "\n";
+          id++;
         }
         else if(r < 80) { 
           // update
 
           int t = rand() % id;
           arr[t] = rand() % 10000;
-          string message = "UPDATE|" + to_string(unique(t)) + "|" + to_string(arr[t]) + "|" + to_string(arr[t]) + "|asdfasdf";
+          string message = "UPDATE|" + to_string(unique(t)) + "|" + to_string(arr[t]) + "|" + to_string(arr[t]) + "|" + randomString(arr[t]);
           cout << "[Sending]\t" + message + "\n";
           c_socket << message;
           c_socket >> reply;
 
-          out << to_string(unique(t)) + "," + to_string(arr[t]) + "," + to_string(arr[t]) + ",asdfasdf" << endl;
+          out << to_string(unique(t)) + "," + to_string(arr[t]) + "," + to_string(arr[t]) + "," + randomString(arr[t]) << endl;
           cout << "[Response]\t" << reply << "\n";
         }
         else{
@@ -66,7 +77,7 @@ int main(int argc, char* argv[]) {
 
           cout << "[Response]\t" << reply << "\n";
           
-          if(reply != to_string(unique(t)) + "|" + to_string(arr[t]) + "|" + to_string(arr[t]) + "|asdfasdf") {
+          if(reply != to_string(unique(t)) + "|" + to_string(arr[t]) + "|" + to_string(arr[t]) + "|" + randomString(arr[t])) {
             out << "[Inconsistency]\t" << reply << "\n";
             cout << "[Inconsistency]\t" << reply << "\n";
             return 0;

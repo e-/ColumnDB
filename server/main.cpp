@@ -86,7 +86,7 @@ int main(int argc, char* argv[]) {
     recovery = ans == "y" || ans == "Y";
   }
   
-  ColumnTable columnTable("Test Database", LOG_PATH, recovery);
+  ColumnTable columnTable("Test Database");
   
   columnTable.addColumn(shared_ptr<Column>(new UnpackedColumn<int>("o_orderkey", intParser, intToString)));
   columnTable.addColumn(shared_ptr<Column>(new PackedColumn<string>("o_orderstatus", stringParser, stringToString)));
@@ -94,6 +94,8 @@ int main(int argc, char* argv[]) {
   columnTable.addColumn(shared_ptr<Column>(new UnpackedColumn<string>("o_comment", stringParser, stringToString)));
 
 
+  columnTable.enableLogging(LOG_PATH, recovery);
+  
   try {
     // Create the Socket
     ServerSocket server(30001);
