@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
             return 0;
           }
         }
-        this_thread::sleep_for(chrono::milliseconds(1));
+//        this_thread::sleep_for(chrono::milliseconds(1));
       }
     } catch(SocketException& e) {
         std::cout << "Exception caught: " << e.description() << std::endl;

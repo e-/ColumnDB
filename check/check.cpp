@@ -99,7 +99,7 @@ int main(){
         return 1;
       }
       inter = !inter;
-      this_thread::sleep_for(chrono::milliseconds(1));
+//      this_thread::sleep_for(chrono::milliseconds(1));
     }
 
     cout << "Check Completed" << endl;
